@@ -12,6 +12,11 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let Enabled: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Enable Only For Human NPCs")
+  @runtimeProperty("ModSettings.description", "Makes PDO only work for human NPCs (if this is disabled, some missions may be bugged, since drones or other enemies can be defeated faster than intended).")
+  let EnablePDOOnlyForHumans: Bool = true;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Dying State Threshold")
   @runtimeProperty("ModSettings.description", "Health percentage threshold, under which NPCs will go into the Dying State (= incapacitated on the ground, still alive).")
   @runtimeProperty("ModSettings.step", "1")
@@ -55,6 +60,11 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.displayName", "Enable Head-'Shot Points'")
   @runtimeProperty("ModSettings.description", "If set to False, the 'Shot Point' mechanic will not work for head shots.")
   let HeadshotsKill: Bool = true;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Enable Head Shot Kills with Blunt Weapons")
+  @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not kill an NPC by 'head shot' when the 'Shot Point' mechanic usually would.")
+  let HeadShotsWithBluntWeapons: Bool = false;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Head Shot Kill Threshold")
@@ -317,86 +327,88 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
 
       let npc: ref<NPCPuppet> = hitEvent.target as NPCPuppet;
       if IsDefined(npc) && !npc.IsDead() {
-        let hitShapeTypeString: String = ToString(hitShapeType); //gives information about actual flesh being hit (or metal, cyberware, armor)
+        if (PDO.EnablePDOOnlyForHumans && Equals(npc.GetNPCType(), gamedataNPCType.Human)) || (!PDO.EnablePDOOnlyForHumans) {        
+        
+          let hitShapeTypeString: String = ToString(hitShapeType); //gives information about actual flesh being hit (or metal, cyberware, armor)
 
-        /*_______________________________________________________
+          /*_______________________________________________________
 
-            AUDIBLE HIT REACTIONS
-        ________________________________________________________*/
+              AUDIBLE HIT REACTIONS
+          ________________________________________________________*/
 
-        if Equals(npc.lastpainaudio, n"") {
-          npc.lastpainaudio = n"placeholder";
-        }
-        if Equals(npc.lastfireaudio, n"") {
-          npc.lastfireaudio = n"placeholder";
-        }
-        if Equals(npc.lastmoanaudio, n"") {
-        npc.lastmoanaudio = n"placeholder";
-        }
-
-        //delaying pain moaning when audible reaction to being is played (so they dont overlap)
-        if npc.lasttimemoaned > Cast<Uint32>(0) {
-          npc.lasttimemoaned = npc.timeincapacitated;
-        }
-        PlaySound(npc, GetPainAudio(npc.lastpainaudio, npc));    
-
-        /*_______________________________________________________
-
-            ACTIVATING MOD LOOP FOR NPC
-        ________________________________________________________*/
-
-        if !npc.hasBeenAffectedByMod {
-          if !npc.WasJustKilledOrDefeated() {
-
-            let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
-            if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.InvulnerableAfterDefeated") {
-              npc.wasInvulnerableAfterDefeat = true;
-            }
-            else {
-              if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Invulnerable") {
-                npc.wasInvulnerable = true;
-              }
-            }          
-
-            DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString);
-            ApplyDamageEffects(npc);    
-
-            let myFunctionCallback: ref<DelayedMainLoopCallback> = new DelayedMainLoopCallback();
-            myFunctionCallback.entity = npc;
-            GameInstance.GetDelaySystem(npc.GetGame()).DelayCallback(myFunctionCallback, 0);
+          if Equals(npc.lastpainaudio, n"") {
+            npc.lastpainaudio = n"placeholder";
           }
+          if Equals(npc.lastfireaudio, n"") {
+            npc.lastfireaudio = n"placeholder";
+          }
+          if Equals(npc.lastmoanaudio, n"") {
+          npc.lastmoanaudio = n"placeholder";
+          }
+
+          //delaying pain moaning when audible reaction to being is played (so they dont overlap)
+          if npc.lasttimemoaned > Cast<Uint32>(0) {
+            npc.lasttimemoaned = npc.timeincapacitated;
+          }
+          PlaySound(npc, GetPainAudio(npc.lastpainaudio, npc));    
+
+          /*_______________________________________________________
+
+              ACTIVATING MOD LOOP FOR NPC
+          ________________________________________________________*/
+
+          if !npc.hasBeenAffectedByMod {
+            if !npc.WasJustKilledOrDefeated() {
+
+              let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
+              if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.InvulnerableAfterDefeated") {
+                npc.wasInvulnerableAfterDefeat = true;
+              }
+              else {
+                if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Invulnerable") {
+                  npc.wasInvulnerable = true;
+                }
+              }          
+
+              DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString);
+              ApplyDamageEffects(npc);    
+
+              let myFunctionCallback: ref<DelayedMainLoopCallback> = new DelayedMainLoopCallback();
+              myFunctionCallback.entity = npc;
+              GameInstance.GetDelaySystem(npc.GetGame()).DelayCallback(myFunctionCallback, 0);
+            }
+          }
+          else {
+            DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString);
+            ApplyDamageEffects(npc);
+          }
+          if PDO.Logging {
+            LogChannel(n"DEBUG", "PDO- [PDO 2077] ");
+            LogChannel(n"DEBUG", "PDO-    Entity ID: " + ToString(npc.GetEntityID()));
+            LogChannel(n"DEBUG", "PDO-    Entity Model/Appearance: " + ToString(npc.GetCurrentAppearanceName()));
+            LogChannel(n"DEBUG", "PDO-    To Be Incapacitated: " + ToString(npc.toBeIncapacitated));
+            LogChannel(n"DEBUG", "PDO-    Health in Percent: " + ToString(GetNPCHealthInPercent(npc)));
+            LogChannel(n"DEBUG", "PDO-    Dying State Threshold (Incapacitation): " + ToString(Cast<Float>(PDO.GetDyingStateThreshold())));
+            LogChannel(n"DEBUG", "PDO- ");
+            LogChannel(n"DEBUG", "PDO-     - Hit Type: " + ToString(hitShapeType));
+            LogChannel(n"DEBUG", "PDO- ");
+            LogChannel(n"DEBUG", "PDO-     - Headshot count: " + ToString(npc.headhitcounter));
+            LogChannel(n"DEBUG", "PDO-     - - Headshot Kill Threshold: " + ToString(PDO.GetHeadshotKillThreshold()));
+            LogChannel(n"DEBUG", "PDO- ");
+            LogChannel(n"DEBUG", "PDO-     - Torsoshot count: " + ToString(npc.torsohitcounter));
+            LogChannel(n"DEBUG", "PDO-     - - Torso Crippling Threshold: " + ToString(PDO.GetTorsoDamagedThreshold()));
+            LogChannel(n"DEBUG", "PDO-     - - Torso Kill Threshold: " + ToString(PDO.GetTorsoshotKillThreshold()));
+            LogChannel(n"DEBUG", "PDO- ");
+            LogChannel(n"DEBUG", "PDO-     - Right Arm shot count: " + ToString(npc.rightarmhitcounter));
+            LogChannel(n"DEBUG", "PDO-     - Left Arm shot count: " + ToString(npc.leftarmhitcounter));
+            LogChannel(n"DEBUG", "PDO-     - - Arm Crippling Threshold: " + ToString(PDO.GetArmDamagedThreshold()));
+            LogChannel(n"DEBUG", "PDO- ");
+            LogChannel(n"DEBUG", "PDO-     - Right Leg shot count: " + ToString(npc.rightleghitcounter));
+            LogChannel(n"DEBUG", "PDO-     - Left Leg shot count: " + ToString(npc.leftleghitcounter));
+            LogChannel(n"DEBUG", "PDO-     - - Leg Crippling Threshold: " + ToString(PDO.GetLegDamagedThreshold()));
+          }  
         }
-        else {
-          DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString);
-          ApplyDamageEffects(npc);
-        }
-      }
-      //let player: ref<PlayerPuppet> = GetPlayer(npc.GetGame());
-      if PDO.Logging {
-        LogChannel(n"DEBUG", "PDO- [PDO 2077] ");
-        LogChannel(n"DEBUG", "PDO-    Entity ID: " + ToString(npc.GetEntityID()));
-        LogChannel(n"DEBUG", "PDO-    Entity Model/Appearance: " + ToString(npc.GetCurrentAppearanceName()));
-        LogChannel(n"DEBUG", "PDO-    To Be Incapacitated: " + ToString(npc.toBeIncapacitated));
-        LogChannel(n"DEBUG", "PDO-    Health in Percent: " + ToString(GetNPCHealthInPercent(npc)));
-        LogChannel(n"DEBUG", "PDO-    Dying State Threshold (Incapacitation): " + ToString(Cast<Float>(PDO.GetDyingStateThreshold())));
-        LogChannel(n"DEBUG", "PDO- ");
-        LogChannel(n"DEBUG", "PDO-     - Hit Type: " + ToString(hitShapeType));
-        LogChannel(n"DEBUG", "PDO- ");
-        LogChannel(n"DEBUG", "PDO-     - Headshot count: " + ToString(npc.headhitcounter));
-        LogChannel(n"DEBUG", "PDO-     - - Headshot Kill Threshold: " + ToString(PDO.GetHeadshotKillThreshold()));
-        LogChannel(n"DEBUG", "PDO- ");
-        LogChannel(n"DEBUG", "PDO-     - Torsoshot count: " + ToString(npc.torsohitcounter));
-        LogChannel(n"DEBUG", "PDO-     - - Torso Crippling Threshold: " + ToString(PDO.GetTorsoDamagedThreshold()));
-        LogChannel(n"DEBUG", "PDO-     - - Torso Kill Threshold: " + ToString(PDO.GetTorsoshotKillThreshold()));
-        LogChannel(n"DEBUG", "PDO- ");
-        LogChannel(n"DEBUG", "PDO-     - Right Arm shot count: " + ToString(npc.rightarmhitcounter));
-        LogChannel(n"DEBUG", "PDO-     - Left Arm shot count: " + ToString(npc.leftarmhitcounter));
-        LogChannel(n"DEBUG", "PDO-     - - Arm Crippling Threshold: " + ToString(PDO.GetArmDamagedThreshold()));
-        LogChannel(n"DEBUG", "PDO- ");
-        LogChannel(n"DEBUG", "PDO-     - Right Leg shot count: " + ToString(npc.rightleghitcounter));
-        LogChannel(n"DEBUG", "PDO-     - Left Leg shot count: " + ToString(npc.leftleghitcounter));
-        LogChannel(n"DEBUG", "PDO-     - - Leg Crippling Threshold: " + ToString(PDO.GetLegDamagedThreshold()));
-      }      
+      }    
     }
   }
 }
@@ -544,7 +556,9 @@ private func MainLoop(npc: ref<NPCPuppet>) {
         npc.DropHeldItems();
 
         if (npc.headhitcounter >= PDO.GetHeadshotKillThreshold()) || (npc.torsohitcounter >= PDO.GetTorsoshotKillThreshold()) {
-          KillNPCCleanly(npc);
+          if !(npc.GetHitReactionComponent().GetHitStimEvent().hitSource == EnumInt(EAIHitSource.MeleeBlunt) && !PDO.HeadShotsWithBluntWeapons) {
+            KillNPCCleanly(npc);
+          }
           return;
         }
 

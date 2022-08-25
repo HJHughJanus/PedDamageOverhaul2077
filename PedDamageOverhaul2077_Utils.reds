@@ -166,7 +166,7 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
 }
 
 public func KillNPCCleanly(npc: ref<NPCPuppet>) {
-    let player: ref<PlayerPuppet> = GetPlayer(npc.GetGame());
+    //let player: ref<PlayerPuppet> = GetPlayer(npc.GetGame());
     let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
     if !npc.wasInvulnerable {
         if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Invulnerable") {
@@ -178,8 +178,9 @@ public func KillNPCCleanly(npc: ref<NPCPuppet>) {
             StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.InvulnerableAfterDefeated");
         }
     }
-    RagdollNPC(npc, "0");
-    npc.Kill(player, false, false);
+    //RagdollNPC(npc, "0");
+    //npc.Kill(player, false, false);
+    npc.MarkForDeath();
     SpawnBloodPuddle(npc);
 }
 
