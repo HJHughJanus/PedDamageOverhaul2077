@@ -2,7 +2,7 @@ module PDOUtils
 
 public static final func IsPlayerLookingAtNPC(npc: ref<NPCPuppet>) -> Bool{
     if IsDefined(npc) {
-        let player: ref<PlayerPuppet> = GetPlayer(npc.GetGame());
+        let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
         let targetingSystem: ref<TargetingSystem> = GameInstance.GetTargetingSystem(npc.GetGame());
         let targetObject: ref<GameObject> = targetingSystem.GetLookAtObject(player, false, false);
         if targetObject.IsNPC() && IsDefined(targetObject) {
@@ -18,11 +18,13 @@ public static final func IsPlayerLookingAtNPC(npc: ref<NPCPuppet>) -> Bool{
     return false;
 }
 
-public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<HitShapeUserDataBase>, hitShapeTypeString: String) {
+public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<HitShapeUserDataBase>, hitShapeTypeString: String, hitEvent: ref<gameHitEvent>) {
     //let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
     //let player: ref<PlayerPuppet> = GetPlayer(npc.GetGame());
     let hitValue: Int32;
     let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
+    let attackData: ref<AttackData> = hitEvent.attackData;
+    let isBluntAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Blunt);
 
     switch (hitShapeTypeString) {
         case "Flesh":
@@ -65,7 +67,9 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
     }*/
 
     if HitShapeUserDataBase.IsHitReactionZoneHead(hitUserData) {
-        npc.headhitcounter = npc.headhitcounter + hitValue;
+        if !(isBluntAttack && !PDO.HeadShotsWithBluntWeapons) {
+            npc.headhitcounter = npc.headhitcounter + hitValue;
+        }
         /*if PDO.GetHeadshotsKill() && npc.headhitcounter >= PDO.GetHeadshotKillThreshold() {
             if !DetermineIfNPCIsBoss(npc) {
                 if !npc.hasBeenAffectedByMod {
@@ -79,7 +83,9 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
     }
     else {
         if HitShapeUserDataBase.IsHitReactionZoneTorso(hitUserData) {
-            npc.torsohitcounter = npc.torsohitcounter + hitValue;
+            if !(isBluntAttack && !PDO.HeadShotsWithBluntWeapons) {
+                npc.torsohitcounter = npc.torsohitcounter + hitValue;
+            }
             /*if npc.torsohitcounter >= PDO.GetTorsoDamagedThreshold {
                 StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
                 StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
@@ -87,7 +93,9 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
         }
         else {
             if HitShapeUserDataBase.IsHitReactionZoneLeftArm(hitUserData) {
-              npc.leftarmhitcounter = npc.leftarmhitcounter + hitValue;
+              if !(isBluntAttack && !PDO.CripplingWithBluntWeapons) {
+                npc.leftarmhitcounter = npc.leftarmhitcounter + hitValue;
+              }
               /*if npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold {
                 StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledArmLeft", 0.10);
                 StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledHandLeft", 0.10);
@@ -95,7 +103,9 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
             }
             else {
                 if HitShapeUserDataBase.IsHitReactionZoneRightArm(hitUserData) {
-                    npc.rightarmhitcounter = npc.rightarmhitcounter + hitValue;
+                    if !(isBluntAttack && !PDO.CripplingWithBluntWeapons) {
+                        npc.rightarmhitcounter = npc.rightarmhitcounter + hitValue;
+                    }
                     /*if npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold {
                         StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledArmRight", 0.10);
                         StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledHandRight", 0.10);
@@ -103,14 +113,18 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
                 }
                 else {
                     if HitShapeUserDataBase.IsHitReactionZoneRightLeg(hitUserData) {
-                        npc.rightleghitcounter = npc.rightleghitcounter + hitValue;
+                        if !(isBluntAttack && !PDO.CripplingWithBluntWeapons) {
+                            npc.rightleghitcounter = npc.rightleghitcounter + hitValue;
+                        }
                         /*if npc.rightleghitcounter >= PDO.GetLegDamagedThreshold {
                             StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledLegRight", 0.10);
                         }*/
                     }
                     else {
                         if HitShapeUserDataBase.IsHitReactionZoneLeftLeg(hitUserData) {
-                            npc.leftleghitcounter = npc.leftleghitcounter + hitValue;
+                            if !(isBluntAttack && !PDO.CripplingWithBluntWeapons) {
+                                npc.leftleghitcounter = npc.leftleghitcounter + hitValue;
+                            }
                             /*if npc.leftleghitcounter >= PDO.GetLegDamagedThreshold {
                                 StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledLegLeft", 0.10);
                             }*/                         

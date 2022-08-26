@@ -63,8 +63,13 @@ public class PedDamageOverhaul2077 extends IScriptable {
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Enable Head Shot Kills with Blunt Weapons")
-  @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not kill an NPC by 'head shot' when the 'Shot Point' mechanic usually would.")
+  @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not kill an NPC by 'head shot' or cripple the torso on 'torso shot', when the 'Shot Point' mechanic usually would.")
   let HeadShotsWithBluntWeapons: Bool = false;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Enable Limb Crippling with Blunt Weapons")
+  @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not cripple an NPC's limbs, when the 'Shot Point' mechanic usually would. (when enabled, fist fights will become much easier)")
+  let CripplingWithBluntWeapons: Bool = false;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Head Shot Kill Threshold")
@@ -76,7 +81,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Torso Shot Kill Threshold")
-  @runtimeProperty("ModSettings.description", "'Shot Points' it takes to kill an NPC by torso thots. (as an NPC enters the Dying State, the horso 'Shot Points' get reset to 0)")
+  @runtimeProperty("ModSettings.description", "'Shot Points' it takes to kill an NPC by torso shots. (only applies to NPCs in Dying State - as an NPC enters the Dying State, the 'Shot Points' get reset to 0)")
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "1")
   @runtimeProperty("ModSettings.max", "100")
@@ -370,7 +375,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
                 }
               }          
 
-              DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString);
+              DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString, hitEvent);
               ApplyDamageEffects(npc);    
 
               let myFunctionCallback: ref<DelayedMainLoopCallback> = new DelayedMainLoopCallback();
@@ -379,15 +384,17 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
             }
           }
           else {
-            DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString);
+            DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString, hitEvent);
             ApplyDamageEffects(npc);
           }
           if PDO.Logging {
+            let attackData: ref<AttackData> = hitEvent.attackData;
             LogChannel(n"DEBUG", "PDO- [PDO 2077] ");
             LogChannel(n"DEBUG", "PDO-    Entity ID: " + ToString(npc.GetEntityID()));
             LogChannel(n"DEBUG", "PDO-    Entity Model/Appearance: " + ToString(npc.GetCurrentAppearanceName()));
             LogChannel(n"DEBUG", "PDO-    To Be Incapacitated: " + ToString(npc.toBeIncapacitated));
             LogChannel(n"DEBUG", "PDO-    Health in Percent: " + ToString(GetNPCHealthInPercent(npc)));
+            LogChannel(n"DEBUG", "PDO-    Hit Source: " + ToString(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID())));
             LogChannel(n"DEBUG", "PDO-    Dying State Threshold (Incapacitation): " + ToString(Cast<Float>(PDO.GetDyingStateThreshold())));
             LogChannel(n"DEBUG", "PDO- ");
             LogChannel(n"DEBUG", "PDO-     - Hit Type: " + ToString(hitShapeType));
@@ -556,9 +563,7 @@ private func MainLoop(npc: ref<NPCPuppet>) {
         npc.DropHeldItems();
 
         if (npc.headhitcounter >= PDO.GetHeadshotKillThreshold()) || (npc.torsohitcounter >= PDO.GetTorsoshotKillThreshold()) {
-          if !(npc.GetHitReactionComponent().GetHitStimEvent().hitSource == EnumInt(EAIHitSource.MeleeBlunt) && !PDO.HeadShotsWithBluntWeapons) {
-            KillNPCCleanly(npc);
-          }
+          KillNPCCleanly(npc);
           return;
         }
 
