@@ -22,7 +22,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "0")
   @runtimeProperty("ModSettings.max", "100")
-  let DyingStateThreshold: Int32 = 10;
+  let DyingStateThreshold: Int32 = 5;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "'Shot Points': Flesh")
@@ -57,26 +57,31 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let ArmorHitValue: Int32 = 3;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
-  @runtimeProperty("ModSettings.displayName", "Enable Head-'Shot Points'")
+  @runtimeProperty("ModSettings.displayName", "Head-'Shot Points'")
   @runtimeProperty("ModSettings.description", "If set to False, the 'Shot Point' mechanic will not work for head shots.")
   let HeadshotsKill: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
-  @runtimeProperty("ModSettings.displayName", "Enable Head Shot Kills with Blunt Weapons")
+  @runtimeProperty("ModSettings.displayName", "Head Shot Kills with Blunt Weapons")
   @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not kill an NPC by 'head shot' or cripple the torso on 'torso shot', when the 'Shot Point' mechanic usually would.")
   let HeadShotsWithBluntWeapons: Bool = false;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
-  @runtimeProperty("ModSettings.displayName", "Enable Limb Crippling with Blunt Weapons")
+  @runtimeProperty("ModSettings.displayName", "Limb Crippling with Blunt Weapons")
   @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not cripple an NPC's limbs, when the 'Shot Point' mechanic usually would. (when enabled, fist fights will become much easier)")
   let CripplingWithBluntWeapons: Bool = false;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Arm Crippling")
+  @runtimeProperty("ModSettings.description", "If set to False, NPC's arms can no longer be crippled. (this is for those who don't want NPCs to stop putting up a fight - because they do if both arms are crippled)")
+  let CripplingArms: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Head Shot Kill Threshold")
   @runtimeProperty("ModSettings.description", "'Shot Points' it takes to kill an NPC by head shots. (as an NPC enters the Dying State, the head 'Shot Points' get reset to 0) Only works if 'Enable Head-'Shot Points'' is enabled.")
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "1")
-  @runtimeProperty("ModSettings.max", "100")
+  @runtimeProperty("ModSettings.max", "500")
   let HeadshotKillThreshold: Int32 = 10;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
@@ -84,7 +89,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.description", "'Shot Points' it takes to kill an NPC by torso shots. (only applies to NPCs in Dying State - as an NPC enters the Dying State, the 'Shot Points' get reset to 0)")
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "1")
-  @runtimeProperty("ModSettings.max", "100")
+  @runtimeProperty("ModSettings.max", "500")
   let TorsoshotKillThreshold: Int32 = 30;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
@@ -92,7 +97,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.description", "'Shot Points' it takes to cripple an NPC's arm.")
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "1")
-  @runtimeProperty("ModSettings.max", "100")
+  @runtimeProperty("ModSettings.max", "500")
   let ArmDamagedThreshold: Int32 = 10;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
@@ -100,7 +105,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.description", "'Shot Points' it takes to cripple an NPC's leg.")
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "1")
-  @runtimeProperty("ModSettings.max", "100")
+  @runtimeProperty("ModSettings.max", "500")
   let LegDamagedThreshold: Int32 = 10;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
@@ -108,7 +113,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.description", "'Shot Points' it takes to cripple an NPC's torso.")
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "1")
-  @runtimeProperty("ModSettings.max", "100")
+  @runtimeProperty("ModSettings.max", "500")
   let TorsoDamagedThreshold: Int32 = 15;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
@@ -116,7 +121,6 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.description", "Enables/Disables the logging of NPC information into the CET console and log file (this information can be useful when reporting unwanted mod behavior).")
   let Logging: Bool = true;
   
-
   public func GetEnabled() -> Bool {
     return this.Enabled;
   }

@@ -42,92 +42,41 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
         default:
             hitValue = 0;
     }
-    
-    /*
-    if Equals(hitShapeTypeString, "Flesh") {
-        hitValue = PDO.GetFleshHitValue();
-    }
-    else {
-        if Equals(hitShapeTypeString, "Metal") {
-            hitValue = PDO.GetMetalHitValue();
-        }
-        else {
-            if Equals(hitShapeTypeString, "Cyberware") {
-               hitValue = PDO.GetCyberwareHitValue();
-            }
-            else {
-                if Equals(hitShapeTypeString, "Armor") {
-                    hitValue = PDO.GetArmorHitValue();
-                }
-                else {
-                    hitValue = 0;
-                }
-            }
-        }
-    }*/
 
     if HitShapeUserDataBase.IsHitReactionZoneHead(hitUserData) {
-        if !(isBluntAttack && !PDO.HeadShotsWithBluntWeapons) {
+        if !(isBluntAttack && !PDO.HeadShotsWithBluntWeapons && GetNPCHealthInPercent(npc) > Cast<Float>(PDO.GetDyingStateThreshold())) {
             npc.headhitcounter = npc.headhitcounter + hitValue;
         }
-        /*if PDO.GetHeadshotsKill() && npc.headhitcounter >= PDO.GetHeadshotKillThreshold() {
-            if !DetermineIfNPCIsBoss(npc) {
-                if !npc.hasBeenAffectedByMod {
-                    npc.MarkForDefeat();
-                }
-                else {
-                    KillNPCCleanly(npc);
-                }
-            }
-        }*/
     }
     else {
         if HitShapeUserDataBase.IsHitReactionZoneTorso(hitUserData) {
-            if !(isBluntAttack && !PDO.HeadShotsWithBluntWeapons) {
+            if !(isBluntAttack && !PDO.HeadShotsWithBluntWeapons && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold())) {
                 npc.torsohitcounter = npc.torsohitcounter + hitValue;
             }
-            /*if npc.torsohitcounter >= PDO.GetTorsoDamagedThreshold {
-                StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
-                StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
-            }*/
         }
         else {
             if HitShapeUserDataBase.IsHitReactionZoneLeftArm(hitUserData) {
-              if !(isBluntAttack && !PDO.CripplingWithBluntWeapons) {
+              if !(isBluntAttack && !PDO.CripplingWithBluntWeapons) && PDO.CripplingArms {
                 npc.leftarmhitcounter = npc.leftarmhitcounter + hitValue;
               }
-              /*if npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold {
-                StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledArmLeft", 0.10);
-                StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledHandLeft", 0.10);
-              }*/
             }
             else {
                 if HitShapeUserDataBase.IsHitReactionZoneRightArm(hitUserData) {
-                    if !(isBluntAttack && !PDO.CripplingWithBluntWeapons) {
+                    if !(isBluntAttack && !PDO.CripplingWithBluntWeapons) && PDO.CripplingArms {
                         npc.rightarmhitcounter = npc.rightarmhitcounter + hitValue;
                     }
-                    /*if npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold {
-                        StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledArmRight", 0.10);
-                        StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledHandRight", 0.10);
-                    }*/
                 }
                 else {
                     if HitShapeUserDataBase.IsHitReactionZoneRightLeg(hitUserData) {
                         if !(isBluntAttack && !PDO.CripplingWithBluntWeapons) {
                             npc.rightleghitcounter = npc.rightleghitcounter + hitValue;
                         }
-                        /*if npc.rightleghitcounter >= PDO.GetLegDamagedThreshold {
-                            StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledLegRight", 0.10);
-                        }*/
                     }
                     else {
                         if HitShapeUserDataBase.IsHitReactionZoneLeftLeg(hitUserData) {
                             if !(isBluntAttack && !PDO.CripplingWithBluntWeapons) {
                                 npc.leftleghitcounter = npc.leftleghitcounter + hitValue;
-                            }
-                            /*if npc.leftleghitcounter >= PDO.GetLegDamagedThreshold {
-                                StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledLegLeft", 0.10);
-                            }*/                         
+                            }                       
                         }
                     }
                 }
