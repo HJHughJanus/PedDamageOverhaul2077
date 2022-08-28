@@ -67,6 +67,11 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let HeadShotsWithBluntWeapons: Bool = false;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Head Shot Kills with Silenced Weapons")
+  @runtimeProperty("ModSettings.description", "If set to False, silenced weapons will not kill an NPC by 'head shot', when the 'Shot Point' mechanic usually would.")
+  let HeadShotsWithSilencedWeapons: Bool = true;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Limb Crippling with Blunt Weapons")
   @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not cripple an NPC's limbs, when the 'Shot Point' mechanic usually would. (when enabled, fist fights will become much easier)")
   let CripplingWithBluntWeapons: Bool = false;
@@ -75,6 +80,11 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.displayName", "Arm Crippling")
   @runtimeProperty("ModSettings.description", "If set to False, NPC's arms can no longer be crippled. (this is for those who don't want NPCs to stop putting up a fight - because they do if both arms are crippled)")
   let CripplingArms: Bool = true;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Crippled Limbs Put Enemies Down")
+  @runtimeProperty("ModSettings.description", "If set to True, NPCs will go into Dying State if both arms or both legs are crippled.")
+  let CripplingPutsNPCsDown: Bool = false;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Head Shot Kill Threshold")
@@ -90,7 +100,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "1")
   @runtimeProperty("ModSettings.max", "500")
-  let TorsoshotKillThreshold: Int32 = 30;
+  let TorsoshotKillThreshold: Int32 = 50;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Arm Shot Crippling Threshold")
@@ -237,6 +247,10 @@ let begginginterval: Int32;
 @addField(NPCPuppet)
 let isBoss: Bool;
 @addField(NPCPuppet)
+let DyingStateForced: Bool;
+@addField(NPCPuppet)
+let KilledCleanlyCount: Int32;
+@addField(NPCPuppet)
 let gender: Int32;
 //10 = male
 //20 = female
@@ -336,8 +350,8 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
 
       let npc: ref<NPCPuppet> = hitEvent.target as NPCPuppet;
       if IsDefined(npc) && !npc.IsDead() {
-        if (PDO.EnablePDOOnlyForHumans && Equals(npc.GetNPCType(), gamedataNPCType.Human)) || (!PDO.EnablePDOOnlyForHumans) {        
-        
+        if ((PDO.EnablePDOOnlyForHumans && Equals(npc.GetNPCType(), gamedataNPCType.Human)) || (!PDO.EnablePDOOnlyForHumans)) && !ShouldNPCBeExcluded(npc) {        
+
           let hitShapeTypeString: String = ToString(hitShapeType); //gives information about actual flesh being hit (or metal, cyberware, armor)
 
           /*_______________________________________________________
@@ -360,7 +374,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
             npc.lasttimemoaned = npc.timeincapacitated;
           }
           PlaySound(npc, GetPainAudio(npc.lastpainaudio, npc));    
-
+          
           /*_______________________________________________________
 
               ACTIVATING MOD LOOP FOR NPC
@@ -396,9 +410,13 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
             LogChannel(n"DEBUG", "PDO- [PDO 2077] ");
             LogChannel(n"DEBUG", "PDO-    Entity ID: " + ToString(npc.GetEntityID()));
             LogChannel(n"DEBUG", "PDO-    Entity Model/Appearance: " + ToString(npc.GetCurrentAppearanceName()));
+            LogChannel(n"DEBUG", "PDO-    NPC Type: " + ToString(npc.GetNPCType()));
             LogChannel(n"DEBUG", "PDO-    To Be Incapacitated: " + ToString(npc.toBeIncapacitated));
             LogChannel(n"DEBUG", "PDO-    Health in Percent: " + ToString(GetNPCHealthInPercent(npc)));
+            LogChannel(n"DEBUG", "PDO-    Health absolute: " + ToString(GetNPCHealth(npc)));
             LogChannel(n"DEBUG", "PDO-    Hit Source: " + ToString(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID())));
+            LogChannel(n"DEBUG", "PDO-    Is Counted as Dead: " + ToString(npc.IsDead()));
+            LogChannel(n"DEBUG", "PDO-    Dying State forced (because of crippled limbs): " + ToString(npc.DyingStateForced));
             LogChannel(n"DEBUG", "PDO-    Dying State Threshold (Incapacitation): " + ToString(Cast<Float>(PDO.GetDyingStateThreshold())));
             LogChannel(n"DEBUG", "PDO- ");
             LogChannel(n"DEBUG", "PDO-     - Hit Type: " + ToString(hitShapeType));
@@ -419,7 +437,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
             LogChannel(n"DEBUG", "PDO-     - - Leg Crippling Threshold: " + ToString(PDO.GetLegDamagedThreshold()));
           }  
         }
-      }    
+      }
     }
   }
 }

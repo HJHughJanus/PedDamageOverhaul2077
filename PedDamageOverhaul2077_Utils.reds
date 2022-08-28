@@ -18,13 +18,67 @@ public static final func IsPlayerLookingAtNPC(npc: ref<NPCPuppet>) -> Bool{
     return false;
 }
 
+public func ShouldNPCBeExcluded(npc: ref<NPCPuppet>) -> Bool {
+    let excludedNPCs: array<String>;
+    ArrayPush(excludedNPCs, "citizen__lowlife_ma__mq025__twin_01"); //quest: beat the brat
+    ArrayPush(excludedNPCs, "citizen__lowlife_ma__mq025__twin_02"); //quest: beat the brat
+    ArrayPush(excludedNPCs, "gang__6tstreet_mb__mq025__buck"); //quest: beat the brat
+    ArrayPush(excludedNPCs, "gang__6thstreet_ma__mq025__buck"); //quest: beat the brat
+    ArrayPush(excludedNPCs, "gang__valentinos_ma__mq025__el_cesar"); //quest: beat the brat
+    ArrayPush(excludedNPCs, "gang__animals_wba__mq025__rhino"); //quest: beat the brat
+    ArrayPush(excludedNPCs, "ozob_default"); //quest: beat the brat
+    ArrayPush(excludedNPCs, "ozob_no_jacket"); //quest: beat the brat
+    ArrayPush(excludedNPCs, "gang__animals_mba__mq025__razor_hugh"); //quest: beat the brat
+
+    let NPCFound: Bool;
+    NPCFound = false;
+
+    let appearance: CName = npc.GetCurrentAppearanceName();
+
+    let i = 0;
+    while i < ArraySize(excludedNPCs) && !NPCFound {
+        if StrFindFirst(ToString(appearance), excludedNPCs[i]) != -1 {
+            npc.gender = 10;
+            NPCFound = true;
+            return NPCFound;
+        }
+        i += 1;
+    }
+    return NPCFound;
+}
+
+/*
+if IsDefined(ownerPuppet) && IsDefined(ownerPuppet.GetPuppetStateBlackboard()) {
+      ownerPuppet.GetPuppetStateBlackboard().SetInt(GetAllBlackboardDefs().PuppetState.ReactionBehavior, EnumInt(gamedataOutput.Ignore));
+*/
+
+public func MakeNPCFlee(npc: ref<NPCPuppet>) {
+    let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
+    GameInstance.GetReactionSystem(npc.GetGame()).RegisterFearReaction(npc, player);
+    /*let reactionManager: ref<ReactionManagerComponent> = npc.m_reactionComponent;
+    
+    let stimData: ref<StimEventTaskData>;
+    stimData = 
+
+    let stimEvent: ref<StimuliEvent>;
+    let stimParams: StimParams;
+    stimEvent = stimData.cachedEvt;
+    stimParams = reactionManager.ProcessStimParams(stimEvent);
+
+    reactionManager.TriggerBehaviorReaction(stimParams.reactionOutput, stimData, stimParams.stimData);
+    */
+}
+
+
 public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<HitShapeUserDataBase>, hitShapeTypeString: String, hitEvent: ref<gameHitEvent>) {
     //let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
-    //let player: ref<PlayerPuppet> = GetPlayer(npc.GetGame());
+    let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
     let hitValue: Int32;
     let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
     let attackData: ref<AttackData> = hitEvent.attackData;
     let isBluntAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Blunt);
+    let isSilencedAttack: Bool = ScriptedPuppet.GetActiveWeapon(player).IsSilenced();
+
 
     switch (hitShapeTypeString) {
         case "Flesh":
@@ -44,7 +98,7 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
     }
 
     if HitShapeUserDataBase.IsHitReactionZoneHead(hitUserData) {
-        if !(isBluntAttack && !PDO.HeadShotsWithBluntWeapons && GetNPCHealthInPercent(npc) > Cast<Float>(PDO.GetDyingStateThreshold())) {
+        if !((isBluntAttack && !PDO.HeadShotsWithBluntWeapons) && GetNPCHealthInPercent(npc) > Cast<Float>(PDO.GetDyingStateThreshold()) && (isSilencedAttack && !PDO.HeadShotsWithSilencedWeapons)) {
             npc.headhitcounter = npc.headhitcounter + hitValue;
         }
     }
@@ -126,6 +180,22 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
             }          
         }
     }
+    if npc.torsohitcounter >= PDO.GetTorsoshotKillThreshold() && PDO.GetHeadshotsKill() {
+        if !DetermineIfNPCIsBoss(npc) {
+            if GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
+                KillNPCCleanly(npc);
+            }
+            else {
+                npc.MarkForDefeat();
+            }          
+        }
+    }
+    if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) || (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
+        if PDO.CripplingPutsNPCsDown {
+            SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
+            npc.DyingStateForced = true;
+        }
+    }
 }
 
 public func KillNPCCleanly(npc: ref<NPCPuppet>) {
@@ -141,10 +211,16 @@ public func KillNPCCleanly(npc: ref<NPCPuppet>) {
             StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.InvulnerableAfterDefeated");
         }
     }
-    //RagdollNPC(npc, "0");
-    //npc.Kill(player, false, false);
-    npc.MarkForDeath();
+    if npc.KilledCleanlyCount == 0 {
+        npc.MarkForDeath();
+    }
+    else {
+        let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
+        RagdollNPC(npc, "0");
+        npc.Kill(player, false, false);
+    }    
     SpawnBloodPuddle(npc);
+    npc.KilledCleanlyCount = npc.KilledCleanlyCount + 1;
 }
 
 public func SpawnBloodPuddle(npc: ref<NPCPuppet>) {
@@ -174,10 +250,12 @@ public func RagdollNPC(target: ref<NPCPuppet>, pushForce: String) {
 }
 
 public func PlaySound(npc: ref<NPCPuppet>, audio: CName) {
-    let soundEvent = new SoundPlayEvent();
-    soundEvent.soundName = audio;
-    npc.lastpainaudio = audio;
-    npc.QueueEvent(soundEvent);
+    if Equals(npc.GetNPCType(), gamedataNPCType.Human) {
+        let soundEvent = new SoundPlayEvent();
+        soundEvent.soundName = audio;
+        npc.lastpainaudio = audio;
+        npc.QueueEvent(soundEvent);
+    }
 }
 
 public func PlayVoiceOver(npc: ref<NPCPuppet>, audio: CName) {
@@ -314,7 +392,7 @@ public func GetNPCHealthInPercent(target: ref<NPCPuppet>) -> Float {
     }
 }
 
-public func SetNPCHealth(target: ref<NPCPuppet>, health: Float) -> Void {
+public func SetNPCHealthInPercent(target: ref<NPCPuppet>, health: Float) -> Void {
     if IsDefined(target) {
         let npcID: StatsObjectID = Cast(target.GetEntityID());
         GameInstance.GetStatPoolsSystem(target.GetGame()).RequestSettingStatPoolValue(npcID, gamedataStatPoolType.Health, health, null, true);
@@ -414,6 +492,12 @@ public func DetermineNPCGender(npc: ref<NPCPuppet>) -> Bool {
     //Exceptions
     if Equals(ToString(appearance), "scavenger_boss_Sh0410_shootingav_01__cybergore") {
         npc.gender = 10;
+        genderfound = true;
+        return genderfound;
+    }
+
+    if Equals(ToString(appearance), "special__cyberpsycho_wa_ma_wat_kab_08_major") {
+        npc.gender = 20;
         genderfound = true;
         return genderfound;
     }
