@@ -47,14 +47,18 @@ public func ShouldNPCBeExcluded(npc: ref<NPCPuppet>) -> Bool {
     return NPCFound;
 }
 
-/*
-if IsDefined(ownerPuppet) && IsDefined(ownerPuppet.GetPuppetStateBlackboard()) {
-      ownerPuppet.GetPuppetStateBlackboard().SetInt(GetAllBlackboardDefs().PuppetState.ReactionBehavior, EnumInt(gamedataOutput.Ignore));
-*/
+
 
 public func MakeNPCFlee(npc: ref<NPCPuppet>) {
     let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
     GameInstance.GetReactionSystem(npc.GetGame()).RegisterFearReaction(npc, player);
+    if IsDefined(npc) && IsDefined(npc.GetPuppetStateBlackboard()) {
+      npc.GetPuppetStateBlackboard().SetInt(GetAllBlackboardDefs().PuppetState.ReactionBehavior, EnumInt(gamedataOutput.Flee));
+    }
+    /*
+if IsDefined(ownerPuppet) && IsDefined(ownerPuppet.GetPuppetStateBlackboard()) {
+      ownerPuppet.GetPuppetStateBlackboard().SetInt(GetAllBlackboardDefs().PuppetState.ReactionBehavior, EnumInt(gamedataOutput.Ignore));
+*/
     /*let reactionManager: ref<ReactionManagerComponent> = npc.m_reactionComponent;
     
     let stimData: ref<StimEventTaskData>;
@@ -176,7 +180,12 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
                 npc.MarkForDefeat();
             }
             else {
-                KillNPCCleanly(npc);
+                if GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
+                    KillNPCCleanly(npc);
+                }
+                else {
+                    npc.MarkForDefeat();
+                }  
             }          
         }
     }
@@ -190,16 +199,31 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
             }          
         }
     }
-    if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) || (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
-        if PDO.CripplingPutsNPCsDown {
-            SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
-            npc.DyingStateForced = true;
+    if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) && (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
+            if PDO.CripplingPutsNPCsDown1 && !npc.DyingStateForced {
+                SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
+                npc.DyingStateForced = true;
+            }
+            else {
+                if PDO.CripplingPutsNPCsDown2 && !npc.DyingStateForced{
+                    SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
+                    npc.DyingStateForced = true;
+                }
+            }
+    }
+    else {
+        if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) || (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
+            if PDO.CripplingPutsNPCsDown1 && !npc.DyingStateForced{
+                SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
+                npc.DyingStateForced = true;
+            }
         }
     }
 }
 
 public func KillNPCCleanly(npc: ref<NPCPuppet>) {
     //let player: ref<PlayerPuppet> = GetPlayer(npc.GetGame());
+    //let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
     let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
     if !npc.wasInvulnerable {
         if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Invulnerable") {
@@ -211,10 +235,10 @@ public func KillNPCCleanly(npc: ref<NPCPuppet>) {
             StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.InvulnerableAfterDefeated");
         }
     }
-    if npc.KilledCleanlyCount == 0 {
-        npc.MarkForDeath();
+    if npc.KilledCleanlyCount < 2 {
+        npc.MarkForDeath();        
     }
-    else {
+    else { //fallback, in case "markfordeath" does not do the trick
         let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
         RagdollNPC(npc, "0");
         npc.Kill(player, false, false);

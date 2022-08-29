@@ -22,7 +22,12 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "0")
   @runtimeProperty("ModSettings.max", "100")
-  let DyingStateThreshold: Int32 = 5;
+  let DyingStateThreshold: Int32 = 10;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Enable Pain Audio")
+  @runtimeProperty("ModSettings.description", "Makes NPCs play pain audio more consistenly (e.g. when hit, when on fire, when in Dying State, etc.).")
+  let PlayPainSounds: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "'Shot Points': Flesh")
@@ -82,9 +87,14 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let CripplingArms: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
-  @runtimeProperty("ModSettings.displayName", "Crippled Limbs Put Enemies Down")
-  @runtimeProperty("ModSettings.description", "If set to True, NPCs will go into Dying State if both arms or both legs are crippled.")
-  let CripplingPutsNPCsDown: Bool = false;
+  @runtimeProperty("ModSettings.displayName", "Crippled Limbs Put Enemies Down v1")
+  @runtimeProperty("ModSettings.description", "If set to True, NPCs will go into Dying State if both arms OR both legs are crippled.")
+  let CripplingPutsNPCsDown1: Bool = false;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Crippled Limbs Put Enemies Down v2")
+  @runtimeProperty("ModSettings.description", "If set to True, NPCs will go into Dying State if both arms AND both legs are crippled.")
+  let CripplingPutsNPCsDown2: Bool = false;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Head Shot Kill Threshold")
@@ -100,7 +110,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "1")
   @runtimeProperty("ModSettings.max", "500")
-  let TorsoshotKillThreshold: Int32 = 50;
+  let TorsoshotKillThreshold: Int32 = 30;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Arm Shot Crippling Threshold")
@@ -373,7 +383,9 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
           if npc.lasttimemoaned > Cast<Uint32>(0) {
             npc.lasttimemoaned = npc.timeincapacitated;
           }
-          PlaySound(npc, GetPainAudio(npc.lastpainaudio, npc));    
+          if PDO.PlayPainSounds {
+            PlaySound(npc, GetPainAudio(npc.lastpainaudio, npc));
+          }    
           
           /*_______________________________________________________
 
@@ -506,13 +518,17 @@ private func MainLoop(npc: ref<NPCPuppet>) {
         npc.timeonfire = Cast<Uint32>(1);
         npc.lasttimefireaudio = Cast<Uint32>(1);
         npc.fireaudiointerval = 38;
-        PlaySound(npc, GetFireAudio(npc.lastfireaudio, npc));
+        if PDO.PlayPainSounds {
+          PlaySound(npc, GetFireAudio(npc.lastfireaudio, npc));
+        }
       }
       else {
         npc.timeonfire = npc.timeonfire + Cast<Uint32>(1);
         if (npc.lasttimefireaudio + Cast<Uint32>(npc.fireaudiointerval)) < npc.timeonfire {
           npc.lasttimefireaudio = npc.timeonfire;
-          PlaySound(npc, GetFireAudio(npc.lastfireaudio, npc));
+          if PDO.PlayPainSounds {
+            PlaySound(npc, GetFireAudio(npc.lastfireaudio, npc));
+          }
         }
         if GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
           if npc.burningstop != 1 {
@@ -577,7 +593,7 @@ private func MainLoop(npc: ref<NPCPuppet>) {
         if (npc.lasttimemoaned + Cast<Uint32>(npc.moaninterval)) < npc.timeincapacitated && !StatusEffectSystem.ObjectHasStatusEffect(npc, t"BaseStatusEffect.Burning") {
           npc.lasttimemoaned = npc.timeincapacitated;
           let randomnr = RandRange(1, 10);
-          if randomnr < 5 {
+          if randomnr < 5 && PDO.PlayPainSounds {
             PlaySound(npc, GetMoanAudio(npc.lastmoanaudio, npc));
           }
         }
