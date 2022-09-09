@@ -50,11 +50,66 @@ public func ShouldNPCBeExcluded(npc: ref<NPCPuppet>) -> Bool {
 
 
 public func MakeNPCFlee(npc: ref<NPCPuppet>) {
+    let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
+    if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.UncontrolledMovement_Default"){
+          StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.UncontrolledMovement_Default", 0.10);
+    }
+/*
+    player.GetStimBroadcasterComponent().TriggerSingleBroadcast(player, gamedataStimType.Terror, 3.00);
+      /*
+      let FearEvent = new StimuliEvent();
+      FearEvent.SetStimType(gamedataStimType.Terror);
+      FearEvent.name = n"run";
+      npc.QueueEvent(FearEvent);
+      */
+      //NPCPuppet.ChangeHighLevelState(npc, gamedataNPCHighLevelState.Fear);
+      //NPCPuppet.ChangeHighLevelState(npc, gamedataNPCHighLevelState.Fear);
+      //AnimationControllerComponent.SetAnimWrapperWeightOnOwnerAndItems(npc, n"fear", 1.00);
+      /*
+        return n"disturbed";
+        };
+        return n"default";
+      case 2:
+        return n"fear";
+      case 3:
+        return n"panic";
+      default:
+        return n"default";
+      */
+      //AnimationControllerComponent.SetAnimWrapperWeightOnOwnerAndItems(npc, n"FearLocomotion1", 1.00);
+      /*
+       let rand: Float;
+    if Equals(stimType, gamedataStimType.Driving) {
+      rand = RandF();
+      if rand <= 0.33 {
+        return n"FearLocomotion1";
+      };
+      if rand > 0.33 && rand <= 0.66 {
+        return n"FearLocomotion3";
+      };
+      return n"FearLocomotion4";
+    };
+    rand = RandF();
+    if rand > 0.25 && rand <= 0.50 {
+      return n"FearLocomotion1";
+    };
+    if rand > 0.50 && rand <= 0.75 {
+      return n"FearLocomotion2";
+    };
+    if rand <= 0.25 {
+      return n"FearLocomotion3";
+    };
+    return n"FearLocomotion4";
+      */
+
+      -----
+    
     let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
     GameInstance.GetReactionSystem(npc.GetGame()).RegisterFearReaction(npc, player);
     if IsDefined(npc) && IsDefined(npc.GetPuppetStateBlackboard()) {
       npc.GetPuppetStateBlackboard().SetInt(GetAllBlackboardDefs().PuppetState.ReactionBehavior, EnumInt(gamedataOutput.Flee));
     }
+*/
     /*
 if IsDefined(ownerPuppet) && IsDefined(ownerPuppet.GetPuppetStateBlackboard()) {
       ownerPuppet.GetPuppetStateBlackboard().SetInt(GetAllBlackboardDefs().PuppetState.ReactionBehavior, EnumInt(gamedataOutput.Ignore));
@@ -199,7 +254,8 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
             }          
         }
     }
-    if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) && (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
+    if PDO.CripplingPutsNPCsDown1 || PDO.CripplingPutsNPCsDown2 {
+        if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) && (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
             if PDO.CripplingPutsNPCsDown1 && !npc.DyingStateForced {
                 SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
                 npc.DyingStateForced = true;
@@ -210,12 +266,37 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
                     npc.DyingStateForced = true;
                 }
             }
+        }
+        else {
+            if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) || (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
+                if PDO.CripplingPutsNPCsDown1 && !npc.DyingStateForced{
+                    SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
+                    npc.DyingStateForced = true;
+                }
+            }
+        }
     }
+    //Preventing all limbs of being damaged (this would result in NPCs just standing there doing nothing)
     else {
-        if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) || (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
-            if PDO.CripplingPutsNPCsDown1 && !npc.DyingStateForced{
-                SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
-                npc.DyingStateForced = true;
+        if npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold() {
+            if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledLegLeft") {
+                StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledLegLeft");
+            }
+            if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Crippled") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Wounded") {
+                StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
+                StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
+            }
+        }
+        if npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold() {
+            if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledArmRight"){
+                StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledArmRight");
+            }
+            if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledHandRight") {
+                StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledHandRight");
+            }
+            if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Crippled") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Wounded") {
+                StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
+                StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
             }
         }
     }

@@ -261,6 +261,8 @@ let DyingStateForced: Bool;
 @addField(NPCPuppet)
 let KilledCleanlyCount: Int32;
 @addField(NPCPuppet)
+let MakeNPCFear: Bool;
+@addField(NPCPuppet)
 let gender: Int32;
 //10 = male
 //20 = female
@@ -406,7 +408,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
               }          
 
               DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString, hitEvent);
-              ApplyDamageEffects(npc);    
+              ApplyDamageEffects(npc);
 
               let myFunctionCallback: ref<DelayedMainLoopCallback> = new DelayedMainLoopCallback();
               myFunctionCallback.entity = npc;
@@ -501,8 +503,11 @@ private func MainLoop(npc: ref<NPCPuppet>) {
   
     let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
     npc.hasBeenAffectedByMod = true;
-    //let player: ref<PlayerPuppet> = GetPlayer(npc.GetGame());
     let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
+
+    if npc.MakeNPCFear {
+      MakeNPCFlee(npc);
+    }
     
     /*_______________________________________________________
               
