@@ -22,7 +22,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "0")
   @runtimeProperty("ModSettings.max", "100")
-  let DyingStateThreshold: Int32 = 10;
+  let DyingStateThreshold: Int32 = 25;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Enable Pain Audio")
@@ -67,8 +67,13 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let HeadshotsKill: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Head Shot Kills with Blade Weapons")
+  @runtimeProperty("ModSettings.description", "If set to False, blade weapons will not kill an NPC by 'head shot', when the 'Shot Point' mechanic usually would.")
+  let HeadShotsWithBladeWeapons: Bool = true;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Head Shot Kills with Blunt Weapons")
-  @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not kill an NPC by 'head shot' or cripple the torso on 'torso shot', when the 'Shot Point' mechanic usually would.")
+  @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not kill an NPC by 'head shot', when the 'Shot Point' mechanic usually would.")
   let HeadShotsWithBluntWeapons: Bool = false;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
@@ -77,9 +82,19 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let HeadShotsWithSilencedWeapons: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
-  @runtimeProperty("ModSettings.displayName", "Limb Crippling with Blunt Weapons")
-  @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not cripple an NPC's limbs, when the 'Shot Point' mechanic usually would. (when enabled, fist fights will become much easier)")
+  @runtimeProperty("ModSettings.displayName", "Crippling with Blade Weapons")
+  @runtimeProperty("ModSettings.description", "If set to False, blade weapons will not cripple an NPC, when the 'Shot Point' mechanic usually would. This also disables torso kills by 'Shot Points' with blade weapons.")
+  let CripplingWithBladeWeapons: Bool = true;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Crippling with Blunt Weapons")
+  @runtimeProperty("ModSettings.description", "If set to False, blunt weapons will not cripple an NPC, when the 'Shot Point' mechanic usually would. (when enabled, fist fights will become much easier) This also disables torso kills by 'Shot Points' with blunt weapons.")
   let CripplingWithBluntWeapons: Bool = false;
+  
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Crippling with Silenced Weapons")
+  @runtimeProperty("ModSettings.description", "If set to False, silenced weapons will not cripple an NPC, when the 'Shot Point' mechanic usually would. This also disables torso kills by 'Shot Points' with silenced weapons.")
+  let CripplingWithSilencedWeapons: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Arm Crippling")
@@ -105,12 +120,28 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let HeadshotKillThreshold: Int32 = 10;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "DS Head Shot Kill Threshold")
+  @runtimeProperty("ModSettings.description", "'Shot Points' it takes to kill an NPC by head shots when in Dying State. (as an NPC enters the Dying State, the head 'Shot Points' get reset to 0) Only works if 'Enable Head-'Shot Points'' is enabled.")
+  @runtimeProperty("ModSettings.step", "1")
+  @runtimeProperty("ModSettings.min", "1")
+  @runtimeProperty("ModSettings.max", "500")
+  let DSHeadshotKillThreshold: Int32 = 1;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Torso Shot Kill Threshold")
-  @runtimeProperty("ModSettings.description", "'Shot Points' it takes to kill an NPC by torso shots. (only applies to NPCs in Dying State - as an NPC enters the Dying State, the 'Shot Points' get reset to 0)")
+  @runtimeProperty("ModSettings.description", "'Shot Points' it takes to kill an NPC by torso shots. (as an NPC enters the Dying State, the 'Shot Points' get reset to 0)")
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "1")
   @runtimeProperty("ModSettings.max", "500")
   let TorsoshotKillThreshold: Int32 = 30;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "DS Torso Shot Kill Threshold")
+  @runtimeProperty("ModSettings.description", "'Shot Points' it takes to kill an NPC by torso shots when in Dying State. (as an NPC enters the Dying State, the 'Shot Points' get reset to 0)")
+  @runtimeProperty("ModSettings.step", "1")
+  @runtimeProperty("ModSettings.min", "1")
+  @runtimeProperty("ModSettings.max", "500")
+  let DSTorsoshotKillThreshold: Int32 = 20;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Arm Shot Crippling Threshold")
@@ -159,6 +190,14 @@ public class PedDamageOverhaul2077 extends IScriptable {
 
   public func GetHeadshotKillThreshold() -> Int32 {
     return this.HeadshotKillThreshold;
+  }
+
+  public func GetDSTorsoshotKillThreshold() -> Int32 {
+    return this.DSTorsoshotKillThreshold;
+  }
+
+  public func GetDSHeadshotKillThreshold() -> Int32 {
+    return this.DSHeadshotKillThreshold;
   }
 
   public func GetArmDamagedThreshold() -> Int32 {
@@ -419,6 +458,19 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
             DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString, hitEvent);
             ApplyDamageEffects(npc);
           }
+
+          if npc.headhitcounter >= PDO.GetDSHeadshotKillThreshold() && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
+            if !DetermineIfNPCIsBoss(npc) {
+              KillNPCCleanly(npc);          
+            }
+          }
+          else {
+            if npc.torsohitcounter >= PDO.GetDSTorsoshotKillThreshold() && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
+              if !DetermineIfNPCIsBoss(npc) {
+                KillNPCCleanly(npc);          
+              }
+            }
+          }
           if PDO.Logging {
             let attackData: ref<AttackData> = hitEvent.attackData;
             LogChannel(n"DEBUG", "PDO- [PDO 2077] ");
@@ -437,10 +489,12 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
             LogChannel(n"DEBUG", "PDO- ");
             LogChannel(n"DEBUG", "PDO-     - Headshot count: " + ToString(npc.headhitcounter));
             LogChannel(n"DEBUG", "PDO-     - - Headshot Kill Threshold: " + ToString(PDO.GetHeadshotKillThreshold()));
+            LogChannel(n"DEBUG", "PDO-     - - DS Headshot Kill Threshold: " + ToString(PDO.GetDSHeadshotKillThreshold()));
             LogChannel(n"DEBUG", "PDO- ");
             LogChannel(n"DEBUG", "PDO-     - Torsoshot count: " + ToString(npc.torsohitcounter));
             LogChannel(n"DEBUG", "PDO-     - - Torso Crippling Threshold: " + ToString(PDO.GetTorsoDamagedThreshold()));
             LogChannel(n"DEBUG", "PDO-     - - Torso Kill Threshold: " + ToString(PDO.GetTorsoshotKillThreshold()));
+            LogChannel(n"DEBUG", "PDO-     - - DS Torso Kill Threshold: " + ToString(PDO.GetDSTorsoshotKillThreshold()));
             LogChannel(n"DEBUG", "PDO- ");
             LogChannel(n"DEBUG", "PDO-     - Right Arm shot count: " + ToString(npc.rightarmhitcounter));
             LogChannel(n"DEBUG", "PDO-     - Left Arm shot count: " + ToString(npc.leftarmhitcounter));
@@ -605,7 +659,7 @@ private func MainLoop(npc: ref<NPCPuppet>) {
 
         npc.DropHeldItems();
 
-        if (npc.headhitcounter >= PDO.GetHeadshotKillThreshold()) || (npc.torsohitcounter >= PDO.GetTorsoshotKillThreshold()) {
+        if (npc.headhitcounter >= PDO.GetDSHeadshotKillThreshold()) || (npc.torsohitcounter >= PDO.GetDSTorsoshotKillThreshold()) {
           KillNPCCleanly(npc);
           return;
         }
