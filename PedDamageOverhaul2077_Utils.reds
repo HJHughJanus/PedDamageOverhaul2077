@@ -349,8 +349,6 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
 }
 
 public func KillNPCCleanly(npc: ref<NPCPuppet>) {
-    //let player: ref<PlayerPuppet> = GetPlayer(npc.GetGame());
-    //let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
     let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
     if !npc.wasInvulnerable {
         if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Invulnerable") {
@@ -363,12 +361,12 @@ public func KillNPCCleanly(npc: ref<NPCPuppet>) {
         }
     }
     if npc.KilledCleanlyCount < 2 {
+        npc.SetMyKiller(GetPlayer(npc.GetGame()));
         npc.MarkForDeath();        
     }
     else { //fallback, in case "markfordeath" does not do the trick
-        let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
         RagdollNPC(npc, "0");
-        npc.Kill(player, false, false);
+        npc.Kill(GetPlayer(npc.GetGame()), false, false);
     }    
     SpawnBloodPuddle(npc);
     npc.KilledCleanlyCount = npc.KilledCleanlyCount + 1;
