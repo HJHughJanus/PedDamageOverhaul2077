@@ -80,6 +80,8 @@ let screaminterval: Int32;
 @addField(NPCPuppet)
 let lastscreamaudio: CName;
 @addField(NPCPuppet)
+let screamcount: Int32;
+@addField(NPCPuppet)
 let gender: Int32;
 //10 = male
 //20 = female
@@ -260,7 +262,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
             }
           }
           if PDO.Logging {
-            LogNPCData(npc, hitEvent);
+            LogNPCData(npc, hitEvent, "Ped Damage Overhaul 2077 - Pre-Shot-Analytics", "Logs the state of the NPC at the moment the damage hits them (status effects, etc. not applied at this time).");
           }  
         }
       }

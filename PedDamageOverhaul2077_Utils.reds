@@ -183,63 +183,65 @@ public func DetermineIfNPCIsBossOrPsycho(npc: ref<NPCPuppet>) -> Bool {
 }
 
 public func DetermineNPCGender(npc: ref<NPCPuppet>) -> Bool {
-    let genderstringsmale: array<String>;
-    ArrayPush(genderstringsmale, "_ma");
-    ArrayPush(genderstringsmale, "ma_");
-    ArrayPush(genderstringsmale, "_ma_");
-    ArrayPush(genderstringsmale, "_mb");
-    ArrayPush(genderstringsmale, "mb_");
-    ArrayPush(genderstringsmale, "_mb_");
-    ArrayPush(genderstringsmale, "_mf");
-    ArrayPush(genderstringsmale, "mf_");
-    ArrayPush(genderstringsmale, "_mf_");
-    ArrayPush(genderstringsmale, "_maf");
-    ArrayPush(genderstringsmale, "maf_");
-    ArrayPush(genderstringsmale, "_maf_");
-    ArrayPush(genderstringsmale, "_mbf");
-    ArrayPush(genderstringsmale, "mbf_");
-    ArrayPush(genderstringsmale, "_mbf_");
-    ArrayPush(genderstringsmale, "_mba");
-    ArrayPush(genderstringsmale, "mba_");
-    ArrayPush(genderstringsmale, "_mba_");
-    ArrayPush(genderstringsmale, "_mm");
-    ArrayPush(genderstringsmale, "mm_");
-    ArrayPush(genderstringsmale, "_mm_");
-    ArrayPush(genderstringsmale, "_ms");
-    ArrayPush(genderstringsmale, "ms_");
-    ArrayPush(genderstringsmale, "_ms_");
-    ArrayPush(genderstringsmale, "_mc");
-    ArrayPush(genderstringsmale, "mc_");
-    ArrayPush(genderstringsmale, "_mc_");
+    let genderstringsmale1: array<String>;
+    let genderstringsmale2: array<String>;
+    ArrayPush(genderstringsmale2, "_ma");
+    ArrayPush(genderstringsmale2, "ma_");
+    ArrayPush(genderstringsmale1, "_ma_");
+    ArrayPush(genderstringsmale2, "_mb");
+    ArrayPush(genderstringsmale2, "mb_");
+    ArrayPush(genderstringsmale1, "_mb_");
+    ArrayPush(genderstringsmale2, "_mf");
+    ArrayPush(genderstringsmale2, "mf_");
+    ArrayPush(genderstringsmale1, "_mf_");
+    ArrayPush(genderstringsmale2, "_maf");
+    ArrayPush(genderstringsmale2, "maf_");
+    ArrayPush(genderstringsmale1, "_maf_");
+    ArrayPush(genderstringsmale2, "_mbf");
+    ArrayPush(genderstringsmale2, "mbf_");
+    ArrayPush(genderstringsmale1, "_mbf_");
+    ArrayPush(genderstringsmale2, "_mba");
+    ArrayPush(genderstringsmale2, "mba_");
+    ArrayPush(genderstringsmale1, "_mba_");
+    ArrayPush(genderstringsmale2, "_mm");
+    ArrayPush(genderstringsmale2, "mm_");
+    ArrayPush(genderstringsmale1, "_mm_");
+    ArrayPush(genderstringsmale2, "_ms");
+    ArrayPush(genderstringsmale2, "ms_");
+    ArrayPush(genderstringsmale1, "_ms_");
+    ArrayPush(genderstringsmale2, "_mc");
+    ArrayPush(genderstringsmale2, "mc_");
+    ArrayPush(genderstringsmale1, "_mc_");
 
-    let genderstringsfemale: array<String>;    
-    ArrayPush(genderstringsfemale, "_wa");
-    ArrayPush(genderstringsfemale, "wa_");
-    ArrayPush(genderstringsfemale, "_wa_");
-    ArrayPush(genderstringsfemale, "_wb");
-    ArrayPush(genderstringsfemale, "wb_");
-    ArrayPush(genderstringsfemale, "_wb_");
-    ArrayPush(genderstringsfemale, "_wf");
-    ArrayPush(genderstringsfemale, "wf_");
-    ArrayPush(genderstringsfemale, "_wf_");
-    ArrayPush(genderstringsfemale, "_waf");
-    ArrayPush(genderstringsfemale, "waf_");
-    ArrayPush(genderstringsfemale, "_waf_");
-    ArrayPush(genderstringsfemale, "_wbf");
-    ArrayPush(genderstringsfemale, "wbf_");
-    ArrayPush(genderstringsfemale, "_wbf_");
-    ArrayPush(genderstringsfemale, "_wba");
-    ArrayPush(genderstringsfemale, "wba_");
-    ArrayPush(genderstringsfemale, "_wba_");
-    ArrayPush(genderstringsfemale, "_wm");
-    ArrayPush(genderstringsfemale, "wm_");
-    ArrayPush(genderstringsfemale, "_wm_");
-    ArrayPush(genderstringsfemale, "_ws");
-    ArrayPush(genderstringsfemale, "ws_");
-    ArrayPush(genderstringsfemale, "_ws_");
-    ArrayPush(genderstringsfemale, "_wc");
-    ArrayPush(genderstringsfemale, "wc_");
-    ArrayPush(genderstringsfemale, "_wc_");
+    let genderstringsfemale1: array<String>;
+    let genderstringsfemale2: array<String>;    
+    ArrayPush(genderstringsfemale2, "_wa");
+    ArrayPush(genderstringsfemale2, "wa_");
+    ArrayPush(genderstringsfemale1, "_wa_");
+    ArrayPush(genderstringsfemale2, "_wb");
+    ArrayPush(genderstringsfemale2, "wb_");
+    ArrayPush(genderstringsfemale1, "_wb_");
+    ArrayPush(genderstringsfemale2, "_wf");
+    ArrayPush(genderstringsfemale2, "wf_");
+    ArrayPush(genderstringsfemale1, "_wf_");
+    ArrayPush(genderstringsfemale2, "_waf");
+    ArrayPush(genderstringsfemale2, "waf_");
+    ArrayPush(genderstringsfemale1, "_waf_");
+    ArrayPush(genderstringsfemale2, "_wbf");
+    ArrayPush(genderstringsfemale2, "wbf_");
+    ArrayPush(genderstringsfemale1, "_wbf_");
+    ArrayPush(genderstringsfemale2, "_wba");
+    ArrayPush(genderstringsfemale2, "wba_");
+    ArrayPush(genderstringsfemale1, "_wba_");
+    ArrayPush(genderstringsfemale2, "_wm");
+    ArrayPush(genderstringsfemale2, "wm_");
+    ArrayPush(genderstringsfemale1, "_wm_");
+    ArrayPush(genderstringsfemale2, "_ws");
+    ArrayPush(genderstringsfemale2, "ws_");
+    ArrayPush(genderstringsfemale1, "_ws_");
+    ArrayPush(genderstringsfemale2, "_wc");
+    ArrayPush(genderstringsfemale2, "wc_");
+    ArrayPush(genderstringsfemale1, "_wc_");
 
     let genderfound: Bool;
     genderfound = false;
@@ -261,8 +263,8 @@ public func DetermineNPCGender(npc: ref<NPCPuppet>) -> Bool {
 
     //Standard
     let i = 0;
-    while i < ArraySize(genderstringsmale) && !genderfound {
-        if StrFindFirst(ToString(appearance), genderstringsmale[i]) != -1 {
+    while i < ArraySize(genderstringsmale1) && !genderfound {
+        if StrFindFirst(ToString(appearance), genderstringsmale1[i]) != -1 {
             npc.gender = 10;
             genderfound = true;
             return genderfound;
@@ -271,8 +273,28 @@ public func DetermineNPCGender(npc: ref<NPCPuppet>) -> Bool {
     }
 
     i = 0;
-    while i < ArraySize(genderstringsfemale) && !genderfound {
-        if StrFindFirst(ToString(appearance), genderstringsfemale[i]) != -1 {
+    while i < ArraySize(genderstringsfemale1) && !genderfound {
+        if StrFindFirst(ToString(appearance), genderstringsfemale1[i]) != -1 {
+            npc.gender = 20;
+            genderfound = true;
+            return genderfound;
+        }
+        i += 1;
+    }
+
+    i = 0;
+    while i < ArraySize(genderstringsmale2) && !genderfound {
+        if StrFindFirst(ToString(appearance), genderstringsmale2[i]) != -1 {
+            npc.gender = 10;
+            genderfound = true;
+            return genderfound;
+        }
+        i += 1;
+    }
+
+    i = 0;
+    while i < ArraySize(genderstringsfemale2) && !genderfound {
+        if StrFindFirst(ToString(appearance), genderstringsfemale2[i]) != -1 {
             npc.gender = 20;
             genderfound = true;
             return genderfound;

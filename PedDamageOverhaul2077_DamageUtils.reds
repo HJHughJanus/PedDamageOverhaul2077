@@ -12,7 +12,6 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
     let isBluntAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Blunt);
     let isBladeAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Blade);
     let isSilencedAttack: Bool = ScriptedPuppet.GetActiveWeapon(player).IsSilenced();
-    let NPCisMeleeNPC: Bool = WeaponObject.IsMelee(ScriptedPuppet.GetActiveWeapon(npc).GetItemID()) && PDO.DisableCripplingMeleeEnemies;
     let CurrentAttackIsViableHeadshot: Bool = true;
     let CurrentAttackIsViableCripplingShot: Bool = true;
 
@@ -75,25 +74,25 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
         }
         else {
             if HitShapeUserDataBase.IsHitReactionZoneLeftArm(hitUserData) {
-              if CurrentAttackIsViableCripplingShot && PDO.CripplingArms && !NPCisMeleeNPC {
+              if CurrentAttackIsViableCripplingShot && PDO.CripplingArms {
                 npc.leftarmhitcounter = npc.leftarmhitcounter + hitValue;
               }
             }
             else {
                 if HitShapeUserDataBase.IsHitReactionZoneRightArm(hitUserData) {
-                    if CurrentAttackIsViableCripplingShot && PDO.CripplingArms && !NPCisMeleeNPC {
+                    if CurrentAttackIsViableCripplingShot && PDO.CripplingArms {
                         npc.rightarmhitcounter = npc.rightarmhitcounter + hitValue;
                     }
                 }
                 else {
                     if HitShapeUserDataBase.IsHitReactionZoneRightLeg(hitUserData) {
-                        if CurrentAttackIsViableCripplingShot && !NPCisMeleeNPC {
+                        if CurrentAttackIsViableCripplingShot {
                             npc.rightleghitcounter = npc.rightleghitcounter + hitValue;
                         }
                     }
                     else {
                         if HitShapeUserDataBase.IsHitReactionZoneLeftLeg(hitUserData) {
-                            if CurrentAttackIsViableCripplingShot && !NPCisMeleeNPC {
+                            if CurrentAttackIsViableCripplingShot {
                                 npc.leftleghitcounter = npc.leftleghitcounter + hitValue;
                             }                       
                         }
@@ -107,13 +106,14 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
 public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
     let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
     let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
-    if npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold() {
+    let NPCisMeleeNPC: Bool = WeaponObject.IsMelee(ScriptedPuppet.GetActiveWeapon(npc).GetItemID()) && PDO.DisableCripplingMeleeEnemies;
+    if npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold() && !NPCisMeleeNPC {
         if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledArmLeft") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledHandLeft") {
           StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledArmLeft", 0.10);
           StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledHandLeft", 0.10);
         }
     }
-    if npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() {
+    if npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && !NPCisMeleeNPC {
         /* crippling the right arm introduces weird npc behavior -> left arm is being crippled
         if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledArmRight") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledHandRight") {
           StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledArmRight", 0.10);
@@ -125,17 +125,17 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
           StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledHandLeft", 0.10);
         }
     }
-    if npc.leftleghitcounter >= PDO.GetLegDamagedThreshold() {
+    if npc.leftleghitcounter >= PDO.GetLegDamagedThreshold() && !NPCisMeleeNPC{
         if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledLegLeft") {
           StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledLegLeft", 0.10);
         }
     }
-    if npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() {
+    if npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && !NPCisMeleeNPC{
         if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledLegRight") {
           StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.CrippledLegRight", 0.10);
         }
     }
-    if npc.torsohitcounter >= PDO.GetTorsoDamagedThreshold() {
+    if npc.torsohitcounter >= PDO.GetTorsoDamagedThreshold() && !NPCisMeleeNPC {
         if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Crippled") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Wounded") {
           StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
           StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
@@ -179,49 +179,82 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
                     }  
                 }
             }
-            if PDO.CripplingPutsNPCsDown1 || PDO.CripplingPutsNPCsDown2 {
-                if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) && (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
-                    if PDO.CripplingPutsNPCsDown1 && !npc.DyingStateForced {
+            if NPCisMeleeNPC && PDO.CripplingPutsMeleeNPCsDown {
+                if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) || (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
+                    if PDO.CripplingPutsNPCsDown1 && !npc.DyingStateForced{
                         SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
                         npc.DyingStateForced = true;
                     }
-                    else {
-                        if PDO.CripplingPutsNPCsDown2 && !npc.DyingStateForced{
-                            SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
-                            npc.DyingStateForced = true;
-                        }
-                    }
                 }
                 else {
-                    if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) || (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
-                        if PDO.CripplingPutsNPCsDown1 && !npc.DyingStateForced{
-                            SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
-                            npc.DyingStateForced = true;
+                    if npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold() {
+                        if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledLegLeft") {
+                            StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledLegLeft");
+                        }
+                        if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Crippled") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Wounded") {
+                            StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
+                            StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
+                        }
+                    }
+                    if npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold() {
+                        if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledArmRight"){
+                            StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledArmRight");
+                        }
+                        if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledHandRight") {
+                            StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledHandRight");
+                        }
+                        if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Crippled") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Wounded") {
+                            StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
+                            StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
                         }
                     }
                 }
             }
-            //Preventing all limbs of being damaged (this would result in NPCs just standing there doing nothing)
             else {
-                if npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold() {
-                    if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledLegLeft") {
-                        StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledLegLeft");
+                if PDO.CripplingPutsNPCsDown1 || PDO.CripplingPutsNPCsDown2 {
+                    if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) && (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
+                        if PDO.CripplingPutsNPCsDown1 && !npc.DyingStateForced {
+                            SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
+                            npc.DyingStateForced = true;
+                        }
+                        else {
+                            if PDO.CripplingPutsNPCsDown2 && !npc.DyingStateForced{
+                                SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
+                                npc.DyingStateForced = true;
+                            }
+                        }
                     }
-                    if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Crippled") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Wounded") {
-                        StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
-                        StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
+                    else {
+                        if (npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold()) || (npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold()) {
+                            if PDO.CripplingPutsNPCsDown1 && !npc.DyingStateForced{
+                                SetNPCHealthInPercent(npc, Cast<Float>(PDO.DyingStateThreshold));
+                                npc.DyingStateForced = true;
+                            }
+                        }
                     }
                 }
-                if npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold() {
-                    if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledArmRight"){
-                        StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledArmRight");
+                //Preventing all limbs of being damaged (this would result in NPCs just standing there doing nothing)
+                else {
+                    if npc.rightleghitcounter >= PDO.GetLegDamagedThreshold() && npc.leftleghitcounter >= PDO.GetLegDamagedThreshold() {
+                        if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledLegLeft") {
+                            StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledLegLeft");
+                        }
+                        if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Crippled") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Wounded") {
+                            StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
+                            StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
+                        }
                     }
-                    if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledHandRight") {
-                        StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledHandRight");
-                    }
-                    if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Crippled") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Wounded") {
-                        StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
-                        StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
+                    if npc.rightarmhitcounter >= PDO.GetArmDamagedThreshold() && npc.leftarmhitcounter >= PDO.GetArmDamagedThreshold() {
+                        if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledArmRight"){
+                            StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledArmRight");
+                        }
+                        if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.CrippledHandRight") {
+                            StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.CrippledHandRight");
+                        }
+                        if !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Crippled") || !statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Wounded") {
+                            StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Crippled", 0.10);
+                            StatusEffectHelper.ApplyStatusEffect(npc, t"BaseStatusEffect.Wounded", 0.10);
+                        }
                     }
                 }
             }
@@ -321,6 +354,7 @@ public func KillNPCCleanly(npc: ref<NPCPuppet>, mode: Int32) {
     }
     //blablaset
     npc.SetMyKiller(GetPlayer(npc.GetGame()));
+    RagdollNPC(npc, "0");
     SetNPCHealthInPercent(npc, 0);
     /*
     if mode == 1 { //use game system for kill

@@ -23,7 +23,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Dying State Threshold")
-  @runtimeProperty("ModSettings.description", "Health percentage threshold, under which NPCs will go into the Dying State (= incapacitated on the ground, still alive).")
+  @runtimeProperty("ModSettings.description", "Health percentage threshold, under which NPCs will go into the Dying State (= incapacitated on the ground, still alive). NOTE: Values higher than 70 can cause unwanted behavior in combination with 'Enable Gore'.")
   @runtimeProperty("ModSettings.step", "1")
   @runtimeProperty("ModSettings.min", "0")
   @runtimeProperty("ModSettings.max", "100")
@@ -114,7 +114,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Arm Crippling")
   @runtimeProperty("ModSettings.description", "If set to False, NPC's arms can no longer be crippled. (this is for those who don't want NPCs to stop putting up a fight - because they do if both arms are crippled)")
-  let CripplingArms: Bool = true;
+  let CripplingArms: Bool = false;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Crippled Limbs Put Enemies Down v1")
@@ -125,6 +125,11 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.displayName", "Crippled Limbs Put Enemies Down v2")
   @runtimeProperty("ModSettings.description", "If set to True, NPCs will go into Dying State if both arms AND both legs are crippled.")
   let CripplingPutsNPCsDown2: Bool = false;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Crippled Limbs Put Melee Enemies Down")
+  @runtimeProperty("ModSettings.description", "If set to True, NPCs weilding melee weapons will go into Dying State if both arms OR both legs are crippled / have accumulated enough 'Shot Points' to count as crippled.")
+  let CripplingPutsMeleeNPCsDown: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Head Shot Kill Threshold")
