@@ -11,9 +11,102 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
     let attackData: ref<AttackData> = hitEvent.attackData;
     let isBluntAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Blunt);
     let isBladeAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Blade);
+    let isPowerAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Power);
+    let isSmartAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Smart);
+    let isTechAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Tech);
     let isSilencedAttack: Bool = ScriptedPuppet.GetActiveWeapon(player).IsSilenced();
     let CurrentAttackIsViableHeadshot: Bool = true;
     let CurrentAttackIsViableCripplingShot: Bool = true;
+
+    /*
+    AttackData:
+        GetAttackType() -> enum gamedataAttackType
+        {
+            ChargedWhipAttack = 0,
+            Direct = 1,
+            Effect = 2,
+            Explosion = 3,
+            GuardBreak = 4,
+            Hack = 5,
+            Melee = 6,
+            PressureWave = 7,
+            QuickMelee = 8,
+            Ranged = 9,
+            Reflect = 10,
+            StrongMelee = 11,
+            Thrown = 12,
+            WhipAttack = 13,
+            Count = 14,
+            Invalid = 15
+        }
+        GetWeapon() -> WeaponObject
+
+    WeaponObject:
+        IsHeavyWeapon() : Bool
+        IsMelee() : Bool
+        IsRanged() : Bool
+        IsCyberwareWeapon(weaponID : gameItemID) : Bool
+        IsFists(weaponID : gameItemID) : Bool
+        IsMelee(weaponID : gameItemID) : Bool
+        IsOneHandedRanged(weaponID : gameItemID) : Bool
+        IsRanged(weaponID : gameItemID) : Bool
+        IsOfType(weaponID : gameItemID, type : gamedataItemType) : Bool
+        GetWeaponType(weaponID : gameItemID) -> enum gamedataItemType {
+            ...
+            Cyb_Launcher = 14,
+            Cyb_MantisBlades = 15,
+            Cyb_NanoWires = 16,
+            Cyb_StrongArms
+            ...
+            Wea_AssaultRifle = 54,
+            Wea_Axe = 55,
+            Wea_Chainsword = 56,
+            Wea_Fists = 57,
+            Wea_Hammer = 58,
+            Wea_Handgun = 59,
+            Wea_HeavyMachineGun = 60,
+            Wea_Katana = 61,
+            Wea_Knife = 62,
+            Wea_LightMachineGun = 63,
+            Wea_LongBlade = 64,
+            Wea_Machete = 65,
+            Wea_Melee = 66,
+            Wea_OneHandedClub = 67,
+            Wea_PrecisionRifle = 68,
+            Wea_Revolver = 69,
+            Wea_Rifle = 70,
+            Wea_ShortBlade = 71,
+            Wea_Shotgun = 72,
+            Wea_ShotgunDual = 73,
+            Wea_SniperRifle = 74,
+            Wea_SubmachineGun = 75,
+            Wea_TwoHandedClub = 76,
+            ...
+        }
+
+        GetCurrentDamageType() -> enum gamedataDamageType
+        {
+            Chemical = 0,
+            Electric = 1,
+            Physical = 2,
+            Thermal = 3,
+            Count = 4,
+            Invalid = 5
+        }
+
+    NotEquals(RPGManager.GetWeaponEvolution(weapon.GetItemID()), gamedataWeaponEvolution.Tech)
+    enum gamedataWeaponEvolution
+    {
+        Blade = 0,
+        Blunt = 1,
+        None = 2,
+        Power = 3,
+        Smart = 4,
+        Tech = 5,
+        Count = 6,
+        Invalid = 7,
+    }
+    */
 
     if isBluntAttack {
         if !PDO.HeadShotsWithBluntWeapons {
@@ -60,6 +153,119 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
         default:
             hitValue = 0;
     }
+
+    if hitValue > 0 {
+        let weaponFamily: gamedataItemType = WeaponObject.GetWeaponType(attackData.GetWeapon().GetItemID());
+
+        switch (weaponFamily) {
+            case gamedataItemType.Wea_AssaultRifle:
+                hitValue = Cast<Int32>(PDO.AssaultRifleDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Axe:
+                hitValue = Cast<Int32>(PDO.AxeDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Chainsword:
+                hitValue = Cast<Int32>(PDO.ChainswordDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Fists:
+                hitValue = Cast<Int32>(PDO.FistDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Hammer:
+                hitValue = Cast<Int32>(PDO.HammerDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Handgun:
+                hitValue = Cast<Int32>(PDO.HandgunDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_HeavyMachineGun:
+                hitValue = Cast<Int32>(PDO.HeavyMachineGunDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Katana:
+                hitValue = Cast<Int32>(PDO.KatanaDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Revolver:
+                hitValue = Cast<Int32>(PDO.RevolverDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Rifle:
+                hitValue = Cast<Int32>(PDO.RifleDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_ShortBlade:
+                hitValue = Cast<Int32>(PDO.ShortBladeDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Shotgun:
+                hitValue = Cast<Int32>(PDO.ShotgunDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_ShotgunDual:
+                hitValue = Cast<Int32>(PDO.DualShotgunDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_SniperRifle:
+                hitValue = Cast<Int32>(PDO.SniperRifleDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_SubmachineGun:
+                hitValue = Cast<Int32>(PDO.SubmachineGunDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_TwoHandedClub:
+                hitValue = Cast<Int32>(PDO.TwoHandedClubDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_PrecisionRifle:
+                hitValue = Cast<Int32>(PDO.PrecisionRifleDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_OneHandedClub:
+                hitValue = Cast<Int32>(PDO.OneHandedClubDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Melee:
+                hitValue = Cast<Int32>(PDO.MeleeDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Machete:
+                hitValue = Cast<Int32>(PDO.MacheteDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_LongBlade:
+                hitValue = Cast<Int32>(PDO.LongBladeDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_LightMachineGun:
+                hitValue = Cast<Int32>(PDO.LightMachineGunDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Wea_Knife:
+                hitValue = Cast<Int32>(PDO.KnifeDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Cyb_Launcher:
+                hitValue = Cast<Int32>(PDO.CybLauncherDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Cyb_MantisBlades:
+                hitValue = Cast<Int32>(PDO.CybMantisBladesDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Cyb_NanoWires:
+                hitValue = Cast<Int32>(PDO.CybNanoWiresDamageModifier * Cast<Float>(hitValue));
+                break;
+            case gamedataItemType.Cyb_StrongArms:
+                hitValue = Cast<Int32>(PDO.CybStrongArmsDamageModifier * Cast<Float>(hitValue));
+                break;
+        }
+
+        if isBladeAttack {
+            hitValue = Cast<Int32>(PDO.BladeDamageModifier * Cast<Float>(hitValue));
+        }
+        else {
+            if isBluntAttack {
+                hitValue = Cast<Int32>(PDO.BluntDamageModifier * Cast<Float>(hitValue));
+            }
+            else {
+                if isPowerAttack {
+                    hitValue = Cast<Int32>(PDO.PowerDamageModifier * Cast<Float>(hitValue));
+                }
+                else {
+                    if isSmartAttack {
+                        hitValue = Cast<Int32>(PDO.SmartDamageModifier * Cast<Float>(hitValue));
+                    }
+                    else {
+                        if isTechAttack {
+                            hitValue = Cast<Int32>(PDO.TechDamageModifier * Cast<Float>(hitValue));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
 
     if HitShapeUserDataBase.IsHitReactionZoneHead(hitUserData) {
         if CurrentAttackIsViableHeadshot {
@@ -269,6 +475,7 @@ public func DismemberBodyPart(npc: ref<NPCPuppet>, hitUserData: ref<HitShapeUser
     let woundType: gameDismWoundType;
     let attackData: ref<AttackData> = hitEvent.attackData;
     let isBladeAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Blade);
+    let isBluntAttack: Bool = Equals(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID()), gamedataWeaponEvolution.Blunt);
     let dismFound: Bool = false;
 
 
@@ -332,7 +539,7 @@ public func DismemberBodyPart(npc: ref<NPCPuppet>, hitUserData: ref<HitShapeUser
         }
     }
     
-    if dismFound {
+    if dismFound && !isBluntAttack {
         DismembermentComponent.RequestDismemberment(npc, dismemberedBodypart, woundType, Vector4.EmptyVector());//this.m_hitShapeData.result.hitPositionEnter);
         npc.WasPDODismembered = true;
     }

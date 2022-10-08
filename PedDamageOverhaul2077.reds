@@ -22,6 +22,11 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let EnablePDOOnlyForHumans: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Enable for Bosses and Psychos")
+  @runtimeProperty("ModSettings.description", "Makes PDO work for Bosses and Cyberpsychos (to a degree - only crippling and Dying State, no kills due to Shot Points, since it would make things too easy).")
+  let EnablePDOForBosses: Bool = true;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Dying State Threshold")
   @runtimeProperty("ModSettings.description", "Health percentage threshold, under which NPCs will go into the Dying State (= incapacitated on the ground, still alive). NOTE: Values higher than 70 can cause unwanted behavior in combination with 'Enable Gore'.")
   @runtimeProperty("ModSettings.step", "1")
@@ -186,6 +191,262 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.min", "1")
   @runtimeProperty("ModSettings.max", "500")
   let TorsoDamagedThreshold: Int32 = 15;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Type Modifier: Tech")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is of type 'Tech' (stacks with 'Weapon Family Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let TechDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Type Modifier: Smart")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is of type 'Smart' (stacks with 'Weapon Family Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let SmartDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Type Modifier: Power")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is of type 'Power' (stacks with 'Weapon Family Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let PowerDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Type Modifier: Blade")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is of type 'Blade' (stacks with 'Weapon Family Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let BladeDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Type Modifier: Blunt")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is of type 'Blunt' (stacks with 'Weapon Family Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let BluntDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Fists")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Fist' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let FistDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Melee")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is 'Melee' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let MeleeDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Axe")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is an 'Axe' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let AxeDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Hammer")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Hammer' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let HammerDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Chainsword")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Chainsword' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let ChainswordDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Katana")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Katana' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let KatanaDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Knife")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Knife' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let KnifeDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Long Blade")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Long Blade' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let LongBladeDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Short Blade")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Short Blade' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let ShortBladeDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Machete")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Machete' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let MacheteDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: One-Handed Club")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'One-Handed Club' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let OneHandedClubDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Two-Handed Club")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Two-Handed Club' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let TwoHandedClubDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Assault Rifle")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is an 'Assault Rifle' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let AssaultRifleDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Handgun")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Handgun' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let HandgunDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Heavy Machine Gun")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Heavy Machine Gun' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let HeavyMachineGunDamageModifier: Float = 1.0;
+  
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Light Machine Gun")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Light Machine Gun' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let LightMachineGunDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Precision Rifle")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Precision Rifle' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let PrecisionRifleDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Revolver")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Revolver' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let RevolverDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Rifle")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Rifle' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let RifleDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Shotgun")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Shotgun' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let ShotgunDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Dual Shotgun")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Dual Shotgun' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let DualShotgunDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Submachine Gun")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Submachine Gun' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let SubmachineGunDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Sniper Rifle")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Sniper Rifle' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let SniperRifleDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Cyberware Strong Arms")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is 'Cyberware Strong Arms' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let CybStrongArmsDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Cyberware Nano Wires")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is 'Cyberware Nano Wires' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let CybNanoWiresDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Cyberware Mantis Blades")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is 'Cyberware Mantis Blades' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let CybMantisBladesDamageModifier: Float = 1.0;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Weapon Family Modifier: Cyberware Rocket Launcher")
+  @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is a 'Cyberware Rocket Launcher' (stacks with 'Weapon Type Modifier').")
+  @runtimeProperty("ModSettings.step", "0.01")
+  @runtimeProperty("ModSettings.min", "0.0")
+  @runtimeProperty("ModSettings.max", "5.0")
+  let CybLauncherDamageModifier: Float = 1.0;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Logging")

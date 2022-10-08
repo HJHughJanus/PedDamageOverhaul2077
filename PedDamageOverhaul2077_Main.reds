@@ -119,6 +119,14 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
   ________________________________________________________*/
   
   let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
+  let NPCIsBossAndPDOEnabled: Bool = true;
+  let npc: ref<NPCPuppet> = hitEvent.target as NPCPuppet;
+  
+  if IsDefined(npc) && !npc.IsDead() {
+    if DetermineIfNPCIsBossOrPsycho(npc) && !PDO.EnablePDOForBosses {
+      NPCIsBossAndPDOEnabled = false;
+    }
+  }
 
   /*_______________________________________________________
               
@@ -127,7 +135,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
 
   wrappedMethod(hitEvent);
   
-  if PDO.GetEnabled() {
+  if PDO.GetEnabled() && NPCIsBossAndPDOEnabled {
 
     /*_______________________________________________________
 
@@ -178,7 +186,6 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
             CUSTOM CODE
       ________________________________________________________*/
 
-      let npc: ref<NPCPuppet> = hitEvent.target as NPCPuppet;
       if IsDefined(npc) && !npc.IsDead() {
         if ((PDO.EnablePDOOnlyForHumans && Equals(npc.GetNPCType(), gamedataNPCType.Human)) || (!PDO.EnablePDOOnlyForHumans)) && !ShouldNPCBeExcluded(npc) {        
 

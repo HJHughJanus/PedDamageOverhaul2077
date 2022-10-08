@@ -20,6 +20,7 @@ public static final func IsPlayerLookingAtNPC(npc: ref<NPCPuppet>) -> Bool{
 
 public func ShouldNPCBeExcluded(npc: ref<NPCPuppet>) -> Bool {
     let excludedNPCs: array<String>;
+    ArrayPush(excludedNPCs, "special__training_dummy_ma_dummy_boxing"); //quest: beat the brat
     ArrayPush(excludedNPCs, "citizen__lowlife_ma__mq025__twin_01"); //quest: beat the brat
     ArrayPush(excludedNPCs, "citizen__lowlife_ma__mq025__twin_02"); //quest: beat the brat
     ArrayPush(excludedNPCs, "gang__6tstreet_mb__mq025__buck"); //quest: beat the brat

@@ -6,6 +6,8 @@ import PDOUtils.*
 public func LogNPCData(npc: ref<NPCPuppet>, hitEvent: ref<gameHitEvent>, title: String, description: String) {
     let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
     let attackData: ref<AttackData> = hitEvent.attackData;
+    let weaponFamily: gamedataItemType = WeaponObject.GetWeaponType(attackData.GetWeapon().GetItemID());
+    let weaponType: gamedataWeaponEvolution = RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID());
     let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
     let hitShapeType: EHitShapeType = DamageSystemHelper.GetHitShapeTypeFromData(DamageSystemHelper.GetHitShape(hitEvent));
     let statsSystem: ref<StatsSystem> = GameInstance.GetStatsSystem(npc.GetGame());
@@ -39,7 +41,8 @@ public func LogNPCData(npc: ref<NPCPuppet>, hitEvent: ref<gameHitEvent>, title: 
     LogChannel(n"DEBUG", "PDO-    To Be Incapacitated: " + ToString(npc.toBeIncapacitated));
     LogChannel(n"DEBUG", "PDO-    Health in Percent: " + ToString(GetNPCHealthInPercent(npc)));
     LogChannel(n"DEBUG", "PDO-    Health absolute: " + ToString(GetNPCHealth(npc)));
-    LogChannel(n"DEBUG", "PDO-    Hit Source: " + ToString(RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID())));
+    LogChannel(n"DEBUG", "PDO-    Weapon Type (Hit Source): " + ToString(weaponType));
+    LogChannel(n"DEBUG", "PDO-    Weapon Family (Hit Source): " + ToString(weaponFamily));
     LogChannel(n"DEBUG", "PDO-    Is Counted as Dead: " + ToString(npc.IsDead()));
     LogChannel(n"DEBUG", "PDO-    Was PDO-Dismembered: " + ToString(npc.WasPDODismembered));
     LogChannel(n"DEBUG", "PDO-    NPC Accuracy: " + ToString(statsSystem.GetStatValue(Cast<StatsObjectID>(npc.GetEntityID()), gamedataStatType.Accuracy)));
