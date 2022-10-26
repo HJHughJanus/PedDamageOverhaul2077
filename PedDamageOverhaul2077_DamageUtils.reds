@@ -265,6 +265,15 @@ public func DoDamageEffectCalculations(npc: ref<NPCPuppet>, hitUserData: ref<Hit
             }
         }
     }
+
+    let CritChanceRand: Int32 = RandRange(0, 100);
+    let InvCritChanceRand: Int32 = RandRange(0, 100);
+    if (CritChanceRand < PDO.CritChance) {
+        hitValue = hitValue * 2;
+    }
+    if (InvCritChanceRand < PDO.InvCritChance) {
+        hitValue = hitValue / 2;
+    }
     
 
     if HitShapeUserDataBase.IsHitReactionZoneHead(hitUserData) {

@@ -35,6 +35,7 @@ public func LogNPCData(npc: ref<NPCPuppet>, hitEvent: ref<gameHitEvent>, title: 
 
     LogChannel(n"DEBUG", "PDO- [" + title + "]");
     LogChannel(n"DEBUG", "PDO- Log Description: " + description);
+    LogChannel(n"DEBUG", "PDO-    PDO Loop Counter: " + ToString(npc.pdoLoopCounter));
     LogChannel(n"DEBUG", "PDO-    Entity ID: " + ToString(npc.GetEntityID()));
     LogChannel(n"DEBUG", "PDO-    Entity Model/Appearance: " + ToString(npc.GetCurrentAppearanceName()));
     LogChannel(n"DEBUG", "PDO-    NPC Type: " + ToString(npc.GetNPCType()));

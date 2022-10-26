@@ -193,6 +193,22 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let TorsoDamagedThreshold: Int32 = 15;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Crit. Chance")
+  @runtimeProperty("ModSettings.description", "The chance of 'Shot Points' getting doubled (the chance applies per shot/hit).")
+  @runtimeProperty("ModSettings.step", "1")
+  @runtimeProperty("ModSettings.min", "0")
+  @runtimeProperty("ModSettings.max", "100")
+  let CritChance: Int32 = 5;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Inverse Crit. Chance")
+  @runtimeProperty("ModSettings.description", "The chance of 'Shot Points' getting halfed (the chance applies per shot/hit).")
+  @runtimeProperty("ModSettings.step", "1")
+  @runtimeProperty("ModSettings.min", "0")
+  @runtimeProperty("ModSettings.max", "100")
+  let InvCritChance: Int32 = 5;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Weapon Type Modifier: Tech")
   @runtimeProperty("ModSettings.description", "'Shot Points' will be multiplied with this factor if the weapon dealing the damage is of type 'Tech' (stacks with 'Weapon Family Modifier').")
   @runtimeProperty("ModSettings.step", "0.01")

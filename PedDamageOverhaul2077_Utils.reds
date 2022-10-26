@@ -166,6 +166,13 @@ public func AddNPCHealth(target: ref<NPCPuppet>, health: Float) -> Void {
 
 public func DetermineIfNPCIsBossOrPsycho(npc: ref<NPCPuppet>) -> Bool {
     let appearance: CName = npc.GetCurrentAppearanceName();
+    let appearances: array<String>;
+    ArrayPush(appearances, "gang__maelstrom_mb__q003__brick");
+    ArrayPush(appearances, "oda_oda");
+    ArrayPush(appearances, "woodman");
+    ArrayPush(appearances, "royce");
+    ArrayPush(appearances, "akira");
+    ArrayPush(appearances, "placide");
 
     if StrFindFirst(ToString(appearance), "boss") != -1 {
             npc.isBoss = true;
@@ -177,6 +184,14 @@ public func DetermineIfNPCIsBossOrPsycho(npc: ref<NPCPuppet>) -> Bool {
             return true;
         }
         else {
+            let i = 0;
+            while i < ArraySize(appearances) {
+                if StrFindFirst(ToString(appearance), appearances[i]) != -1 {
+                    npc.isBoss = true;
+                    return true;
+                }
+                i += 1;
+            }
             npc.isBoss = false;
             return false;
         }

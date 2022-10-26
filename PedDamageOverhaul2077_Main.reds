@@ -82,6 +82,8 @@ let lastscreamaudio: CName;
 @addField(NPCPuppet)
 let screamcount: Int32;
 @addField(NPCPuppet)
+let pdoLoopCounter: Int32;
+@addField(NPCPuppet)
 let gender: Int32;
 //10 = male
 //20 = female

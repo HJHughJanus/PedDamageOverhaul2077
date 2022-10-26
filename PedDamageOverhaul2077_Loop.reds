@@ -10,6 +10,7 @@ public func MainLoop(npc: ref<NPCPuppet>) {
 
   let mainLoopCallback: ref<DelayedMainLoopCallback> = new DelayedMainLoopCallback();
   mainLoopCallback.entity = npc;
+  npc.pdoLoopCounter = npc.pdoLoopCounter + 1;
   if IsDefined(npc) && !npc.IsDead(){
   
     let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
@@ -29,7 +30,7 @@ public func MainLoop(npc: ref<NPCPuppet>) {
       if npc.timeonfire <= Cast<Uint32>(0) {
         npc.timeonfire = Cast<Uint32>(1);
         npc.lasttimefireaudio = Cast<Uint32>(1);
-        npc.fireaudiointerval = 39;
+        npc.fireaudiointerval = 40;
         if PDO.PlayPainSounds {
           PlaySound(npc, GetFireAudio(npc.lastfireaudio, npc));
         }
@@ -91,7 +92,7 @@ public func MainLoop(npc: ref<NPCPuppet>) {
         npc.begginginterval = 150;
         npc.WasPDODismembered = false;
         npc.lasttimescreamed = Cast<Uint32>(0);
-        npc.screaminterval = 39;
+        npc.screaminterval = 40;
         npc.screamcount = 0;
       }
 
