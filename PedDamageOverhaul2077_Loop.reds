@@ -30,7 +30,7 @@ public func MainLoop(npc: ref<NPCPuppet>) {
       if npc.timeonfire <= Cast<Uint32>(0) {
         npc.timeonfire = Cast<Uint32>(1);
         npc.lasttimefireaudio = Cast<Uint32>(1);
-        npc.fireaudiointerval = 40;
+        npc.fireaudiointerval = 38;
         if PDO.PlayPainSounds {
           PlaySound(npc, GetFireAudio(npc.lastfireaudio, npc));
         }
@@ -55,7 +55,7 @@ public func MainLoop(npc: ref<NPCPuppet>) {
           }
 
           if npc.incburningstarted >= Cast<Uint32>(800) && !npc.wasInvulnerable && !npc.wasInvulnerableAfterDefeat {
-            KillNPCCleanly(npc, 1);
+            KillNPCCleanlyModal(npc, 1);
             npc.burningstop = 1;
           }
         }
@@ -92,7 +92,7 @@ public func MainLoop(npc: ref<NPCPuppet>) {
         npc.begginginterval = 150;
         npc.WasPDODismembered = false;
         npc.lasttimescreamed = Cast<Uint32>(0);
-        npc.screaminterval = 40;
+        npc.screaminterval = 38;
         npc.screamcount = 0;
       }
 
@@ -107,7 +107,7 @@ public func MainLoop(npc: ref<NPCPuppet>) {
           //n"fear_run")
         }
 
-        if npc.WasPDODismembered && npc.screamcount <= 5 {
+        if npc.WasPDODismembered && npc.screamcount <= 6 {
             if (npc.lasttimescreamed + Cast<Uint32>(npc.screaminterval)) < npc.timeincapacitated && !StatusEffectSystem.ObjectHasStatusEffect(npc, t"BaseStatusEffect.Burning") {
                 npc.lasttimescreamed = npc.timeincapacitated;
                 let randomnr = RandRange(1, 10);
@@ -130,7 +130,7 @@ public func MainLoop(npc: ref<NPCPuppet>) {
         npc.DropHeldItems();
 
         if (npc.headhitcounter >= PDO.GetDSHeadshotKillThreshold()) || (npc.torsohitcounter >= PDO.GetDSTorsoshotKillThreshold()) {
-          KillNPCCleanly(npc, 1);
+          KillNPCCleanlyModal(npc, 1);
           return;
         }
 

@@ -24,7 +24,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Enable for Bosses and Psychos")
   @runtimeProperty("ModSettings.description", "Makes PDO work for Bosses and Cyberpsychos (to a degree - only crippling and Dying State, no kills due to Shot Points, since it would make things too easy).")
-  let EnablePDOForBosses: Bool = true;
+  let EnablePDOForBosses: Bool = false;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Dying State Threshold")

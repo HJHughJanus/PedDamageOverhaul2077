@@ -358,13 +358,13 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
     }
     if npc.headhitcounter >= PDO.GetDSHeadshotKillThreshold() && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
         if !DetermineIfNPCIsBossOrPsycho(npc) {
-            KillNPCCleanly(npc, 1);          
+            KillNPCCleanlyModal(npc, 1);          
         }
     }
     else {
         if npc.torsohitcounter >= PDO.GetDSTorsoshotKillThreshold() && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
             if !DetermineIfNPCIsBossOrPsycho(npc) {
-                KillNPCCleanly(npc, 1);          
+                KillNPCCleanlyModal(npc, 1);          
             }
         }
         else {
@@ -376,7 +376,7 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
                     }
                     else {
                         if GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
-                            KillNPCCleanly(npc, 1);
+                            KillNPCCleanlyModal(npc, 1);
                         }
                         else {
                             DefeatNPCCleanly(npc);
@@ -387,7 +387,7 @@ public func ApplyDamageEffects(npc: ref<NPCPuppet>) {
             if npc.torsohitcounter >= PDO.GetTorsoshotKillThreshold() && PDO.GetHeadshotsKill() {
                 if !DetermineIfNPCIsBossOrPsycho(npc) {
                     if GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
-                        KillNPCCleanly(npc, 1);
+                        KillNPCCleanlyModal(npc, 1);
                     }
                     else {
                         DefeatNPCCleanly(npc);
@@ -554,7 +554,7 @@ public func DismemberBodyPart(npc: ref<NPCPuppet>, hitUserData: ref<HitShapeUser
     }
 }
 
-public func KillNPCCleanly(npc: ref<NPCPuppet>, mode: Int32) {
+public func KillNPCCleanlyModal(npc: ref<NPCPuppet>, mode: Int32) {
     //Mode 1 = use game system for kill
     //Mode 2 = force ragdoll death
     let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
@@ -568,10 +568,29 @@ public func KillNPCCleanly(npc: ref<NPCPuppet>, mode: Int32) {
             StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.InvulnerableAfterDefeated");
         }
     }
-    //blablaset
+    /*
+    RagdollNPC(npc, "0");
+    GameInstance.GetStatPoolsSystem(GetGameInstance()).RequestSettingStatPoolMinValue(Cast<StatsObjectID>(npc.GetEntityID()), gamedataStatPoolType.Health, GetPlayer(npc.GetGame()));*/
+    let DelayedKill: ref<DelayedKillCallback> = new DelayedKillCallback();
+    DelayedKill.npc = npc;
+    DelayedKill.killexecutedcounter = 1;
+    GameInstance.GetDelaySystem(npc.GetGame()).DelayCallback(DelayedKill, 0.10, false);
+    /*
     npc.SetMyKiller(GetPlayer(npc.GetGame()));
     RagdollNPC(npc, "0");
     SetNPCHealthInPercent(npc, 0);
+    StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.InvulnerableAfterDefeated");
+    StatusEffectHelper.RemoveStatusEffect(npc, t"BaseStatusEffect.Invulnerable");
+    npc.toBeIncapacitated = false;
+    npc.wasKilled = true;
+    npc.MarkForDeath();
+    npc.SetIsDefeatMechanicActive(false);
+    npc.Kill(GetPlayer(npc.GetGame()), true, false);
+
+    let DelayedKill: ref<DelayedKillCallback> = new DelayedKillCallback();
+    DelayedKill.npc = npc;
+    DelayedKill.counter = Cast<Int32>(1.0);
+    GameInstance.GetDelaySystem(npc.GetGame()).DelayCallback(DelayedKill, 0.20, false);*/
     /*
     if mode == 1 { //use game system for kill
         if npc.KilledCleanlyCount < 2 {
@@ -598,6 +617,7 @@ public func KillNPCCleanly(npc: ref<NPCPuppet>, mode: Int32) {
 public func DefeatNPCCleanly(npc: ref<NPCPuppet>) {
     npc.SetMyKiller(GetPlayer(npc.GetGame()));
     npc.MarkForDefeat();
+    SetNPCHealthInPercent(npc, 0);
 }
 
 public func SpawnBloodPuddle(npc: ref<NPCPuppet>) {
@@ -627,6 +647,42 @@ public func RagdollNPC(target: ref<NPCPuppet>, pushForce: String) {
         target.QueueEvent(CreateForceRagdollEvent(n"Debug Command"));
         if NotEquals(pushForce, "") {
             GameInstance.GetDelaySystem(target.GetGame()).DelayEvent(target, CreateRagdollApplyImpulseEvent(target.GetWorldPosition(), Vector4.Normalize(target.GetWorldPosition()) * 0.0, 0.00), 0.00, false);// Vector4.Normalize(target.GetWorldPosition()) * StringToFloat(pushForce), 5.00), 0.10, false);
+        }
+    }
+}
+
+public class DelayedKillCallback extends DelayCallback {
+    public let npc: ref<NPCPuppet>;
+    public let killexecutedcounter: Int32;
+
+    public func Call() -> Void {
+        let DelayedKill: ref<DelayedKillCallback> = new DelayedKillCallback();
+        DelayedKill.npc = this.npc;
+
+        if GameInstance.GetStatsSystem(this.npc.GetGame()).GetStatValue(Cast<StatsObjectID>(this.npc.GetEntityID()), gamedataStatType.IsInvulnerable) > 0.00 {
+            RagdollNPC(this.npc, "0");
+            StatusEffectHelper.RemoveStatusEffect(this.npc, t"BaseStatusEffect.InvulnerableAfterDefeated");
+            StatusEffectHelper.RemoveStatusEffect(this.npc, t"BaseStatusEffect.Invulnerable");
+            GameInstance.GetDelaySystem(this.npc.GetGame()).DelayCallback(DelayedKill, 10.00, false);
+        }
+        else {
+            if this.killexecutedcounter > 10 {
+                let hitev: ref<gameHitEvent> = this.npc.m_lastHitEvent;
+                StatPoolsManager.DrainStatPool(hitev, gamedataStatPoolType.Health, 10.0);
+            }
+            else {
+                RagdollNPC(this.npc, "0");
+                //this.npc.Kill(GetPlayer(this.npc.GetGame()), true, false);
+                //this.npc.SetMyKiller(GetPlayer(this.npc.GetGame()));
+                //RagdollNPC(this.npc, "0");
+                //SetNPCHealthInPercent(this.npc, 0);
+                //this.npc.toBeIncapacitated = false;
+                //this.npc.MarkForDeath();
+                //this.npc.SetIsDefeatMechanicActive(false);
+                this.npc.Kill(GetPlayer(this.npc.GetGame()), true, false);
+                DelayedKill.killexecutedcounter = this.killexecutedcounter + 1;
+                GameInstance.GetDelaySystem(this.npc.GetGame()).DelayCallback(DelayedKill, 0.50, false);
+            }
         }
     }
 }

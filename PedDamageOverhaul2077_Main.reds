@@ -256,7 +256,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
 
           if npc.headhitcounter >= PDO.GetDSHeadshotKillThreshold() && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
             if !DetermineIfNPCIsBossOrPsycho(npc) {
-              KillNPCCleanly(npc, 2);
+              KillNPCCleanlyModal(npc, 2);
               DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 1);
               player.GetStimBroadcasterComponent().TriggerSingleBroadcast(player, gamedataStimType.Terror, 1.00);
             }
@@ -264,7 +264,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
           else {
             if npc.torsohitcounter >= PDO.GetDSTorsoshotKillThreshold() && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
               if !DetermineIfNPCIsBossOrPsycho(npc) {
-                KillNPCCleanly(npc, 2);
+                KillNPCCleanlyModal(npc, 2);
                 DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 1);
                 player.GetStimBroadcasterComponent().TriggerSingleBroadcast(player, gamedataStimType.Terror, 1.00);
               }
