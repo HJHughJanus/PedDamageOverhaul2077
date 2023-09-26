@@ -33,7 +33,7 @@ public func LogNPCData(npc: ref<NPCPuppet>, hitEvent: ref<gameHitEvent>, title: 
       isTorsoCrippled = true;
     }
 
-    LogChannel(n"DEBUG", "PDO- [" + title + "]");
+    /*LogChannel(n"DEBUG", "PDO- [" + title + "]");
     LogChannel(n"DEBUG", "PDO- Log Description: " + description);
     LogChannel(n"DEBUG", "PDO-    PDO Loop Counter: " + ToString(npc.pdoLoopCounter));
     LogChannel(n"DEBUG", "PDO-    Entity ID: " + ToString(npc.GetEntityID()));
@@ -72,19 +72,19 @@ public func LogNPCData(npc: ref<NPCPuppet>, hitEvent: ref<gameHitEvent>, title: 
     LogChannel(n"DEBUG", "PDO-     - Left Leg shot count: " + ToString(npc.leftleghitcounter));
     LogChannel(n"DEBUG", "PDO-     - - Leg Crippling Threshold: " + ToString(PDO.GetLegDamagedThreshold()));
     LogChannel(n"DEBUG", "PDO-     - - Is Right Leg Crippled: " + ToString(isRightLegCrippled));
-    LogChannel(n"DEBUG", "PDO-     - - Is Left Leg Crippled: " + ToString(isLeftLegCrippled));
+    LogChannel(n"DEBUG", "PDO-     - - Is Left Leg Crippled: " + ToString(isLeftLegCrippled));*/
 }
 
 public func LogStatusEffects(playerPuppet: ref<gamePuppetBase>) -> Void {
   let appliedEffects: array<ref<StatusEffect>>;
   if playerPuppet != null {
     GameInstance.GetStatusEffectSystem(playerPuppet.GetGame()).GetAppliedEffects(playerPuppet.GetEntityID(), appliedEffects);
-    LogChannel(n"DEBUG", "List of Status Effects for NPC " + ToString(playerPuppet.GetEntityID()));
+    //LogChannel(n"DEBUG", "List of Status Effects for NPC " + ToString(playerPuppet.GetEntityID()));
     let i: Int32 = 0;
     while i < ArraySize(appliedEffects) {
       let record: ref<StatusEffect_Record>;
       record = appliedEffects[i].GetRecord();
-      LogChannel(n"DEBUG", "Status effect " + ToString(i) + ": " + TDBID.ToStringDEBUG(record.GetID()) + ", " + record.UiData().DisplayName() + ", d=" + appliedEffects[i].GetRemainingDuration());
+      //LogChannel(n"DEBUG", "Status effect " + ToString(i) + ": " + TDBID.ToStringDEBUG(record.GetID()) + ", " + record.UiData().DisplayName() + ", d=" + appliedEffects[i].GetRemainingDuration());
       i += 1;
     }
   }
