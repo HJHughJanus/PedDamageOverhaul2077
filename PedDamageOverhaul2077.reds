@@ -467,7 +467,7 @@ public class PedDamageOverhaul2077 extends IScriptable {
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Logging")
   @runtimeProperty("ModSettings.description", "As of Cyberpunk 2077 v2.0 this does nothing. Logging is unfortunately no longer handled the way it was before. Old description: Enables/Disables the logging of NPC information into the CET console and log file (this information can be useful when reporting unwanted mod behavior).")
-  let Logging: Bool = true;
+  let Logging: Bool = false;
   
   public func GetEnabled() -> Bool {
     return this.Enabled;
