@@ -33,7 +33,8 @@ public func LogNPCData(npc: ref<NPCPuppet>, hitEvent: ref<gameHitEvent>, title: 
       isTorsoCrippled = true;
     }
 
-    /*LogChannel(n"DEBUG", "PDO- [" + title + "]");
+    /*
+    LogChannel(n"DEBUG", "PDO- [" + title + "]");
     LogChannel(n"DEBUG", "PDO- Log Description: " + description);
     LogChannel(n"DEBUG", "PDO-    PDO Loop Counter: " + ToString(npc.pdoLoopCounter));
     LogChannel(n"DEBUG", "PDO-    Entity ID: " + ToString(npc.GetEntityID()));

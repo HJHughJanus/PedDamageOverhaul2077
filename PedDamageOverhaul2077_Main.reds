@@ -275,6 +275,10 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
           }  
         }
       }
+      else if IsDefined(npc) && npc.IsDead() && PDO.EnableGore {
+        let hitShapeTypeString: String = ToString(hitShapeType); //gives information about actual flesh being hit (or metal, cyberware, armor)
+        DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 2);
+      }
     }
   }
 }

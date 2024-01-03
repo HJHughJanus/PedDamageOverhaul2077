@@ -92,7 +92,7 @@ public func MainLoop(npc: ref<NPCPuppet>) {
         npc.begginginterval = 150;
         npc.WasPDODismembered = false;
         npc.lasttimescreamed = Cast<Uint32>(0);
-        npc.screaminterval = 38;
+        npc.screaminterval = 50;
         npc.screamcount = 0;
       }
 

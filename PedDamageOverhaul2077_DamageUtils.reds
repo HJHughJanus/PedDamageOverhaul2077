@@ -554,9 +554,49 @@ public func DismemberBodyPart(npc: ref<NPCPuppet>, hitUserData: ref<HitShapeUser
     }
 }
 
+/*
+public final func ApplyFinisher(playerPuppet: ref<PlayerPuppet>, target: ref<GameObject>) -> Void {
+    let attack: ref<IAttack>;
+    let attackContext: AttackInitContext;
+    let broadcaster: ref<StimBroadcasterComponent>;
+    let newhitEvent: ref<gameHitEvent>;
+    let npcTarget: ref<NPCPuppet>;
+    let weapon: ref<WeaponObject> = GameObject.GetActiveWeapon(playerPuppet);
+    let weaponRecord: ref<Item_Record> = TweakDBInterface.GetWeaponItemRecord(ItemID.GetTDBID(weapon.GetItemID()));
+    let tags: array<CName> = weaponRecord.Tags();
+    if FinisherAttackEvents.PlayFinisherGameEffect(target, playerPuppet, ArrayContains(tags, n"FinisherFront"), ArrayContains(tags, n"FinisherBack")) {
+      newhitEvent = new gameHitEvent();
+      newhitEvent.attackData = new AttackData();
+      newhitEvent.target = target;
+      attackContext.record = TweakDBInterface.GetAttackRecord(t"Attacks.Finisher_Fake_Attack");
+      attackContext.instigator = playerPuppet;
+      attackContext.source = playerPuppet;
+      attackContext.weapon = weapon;
+      attack = IAttack.Create(attackContext);
+      newhitEvent.attackData.SetAttackDefinition(attack);
+      newhitEvent.attackData.AddFlag(hitFlag.DealNoDamage, n"Finisher");
+      newhitEvent.attackData.AddFlag(hitFlag.FinisherTriggered, n"Finisher");
+      newhitEvent.attackData.SetSource(playerPuppet);
+      newhitEvent.attackData.SetInstigator(playerPuppet);
+      newhitEvent.attackData.SetWeapon(weapon);
+      GameInstance.GetDamageSystem(target.GetGame()).QueueHitEvent(newhitEvent, target);
+      RPGManager.AwardExperienceFromDamage(newhitEvent, 25.00);
+      broadcaster = target.GetStimBroadcasterComponent();
+      if IsDefined(broadcaster) {
+        broadcaster.TriggerSingleBroadcast(target, gamedataStimType.Scream, 10.00);
+      };
+      npcTarget = target as NPCPuppet;
+      if IsDefined(npcTarget) {
+        npcTarget.MarkForDeath();
+      };
+    };
+  }
+*/
+
 public func KillNPCCleanlyModal(npc: ref<NPCPuppet>, mode: Int32) {
     //Mode 1 = use game system for kill
     //Mode 2 = force ragdoll death
+    //Mode 3 = try to use a finisher (finishing animation) on kill
     let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
     if !npc.wasInvulnerable {
         if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Invulnerable") {
@@ -570,7 +610,8 @@ public func KillNPCCleanlyModal(npc: ref<NPCPuppet>, mode: Int32) {
     }
     /*
     RagdollNPC(npc, "0");
-    GameInstance.GetStatPoolsSystem(GetGameInstance()).RequestSettingStatPoolMinValue(Cast<StatsObjectID>(npc.GetEntityID()), gamedataStatPoolType.Health, GetPlayer(npc.GetGame()));*/
+    GameInstance.GetStatPoolsSystem(GetGameInstance()).RequestSettingStatPoolMinValue(Cast<StatsObjectID>(npc.GetEntityID()), gamedataStatPoolType.Health, GetPlayer(npc.GetGame()));
+    */
     let DelayedKill: ref<DelayedKillCallback> = new DelayedKillCallback();
     DelayedKill.npc = npc;
     DelayedKill.killexecutedcounter = 1;
@@ -615,9 +656,9 @@ public func KillNPCCleanlyModal(npc: ref<NPCPuppet>, mode: Int32) {
 
 
 public func DefeatNPCCleanly(npc: ref<NPCPuppet>) {
-    npc.SetMyKiller(GetPlayer(npc.GetGame()));
+    //npc.SetMyKiller(GetPlayer(npc.GetGame()));
     npc.MarkForDefeat();
-    SetNPCHealthInPercent(npc, 0);
+    //SetNPCHealthInPercent(npc, 0);
 }
 
 public func SpawnBloodPuddle(npc: ref<NPCPuppet>) {

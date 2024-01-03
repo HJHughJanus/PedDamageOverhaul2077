@@ -173,6 +173,22 @@ public func DetermineIfNPCIsBossOrPsycho(npc: ref<NPCPuppet>) -> Bool {
     ArrayPush(appearances, "royce");
     ArrayPush(appearances, "akira");
     ArrayPush(appearances, "placide");
+    ArrayPush(appearances, "anton_kolev");
+    ArrayPush(appearances, "barry_alken");
+    ArrayPush(appearances, "bruce_ward");
+    ArrayPush(appearances, "denzel_cryer");
+    ArrayPush(appearances, "kaiser_herzog");
+    ArrayPush(appearances, "miguel_rodrigez");
+    ArrayPush(appearances, "mokomichi_yamada");
+    ArrayPush(appearances, "olga_elisabeth_longmead");
+    ArrayPush(appearances, "paul_craven");
+    ArrayPush(appearances, "rufus_mcbride");
+    ArrayPush(appearances, "shibobu_imai");
+    ArrayPush(appearances, "stanislaus_zbyszko");
+    ArrayPush(appearances, "tom_ymir_ayer");
+    ArrayPush(appearances, "yelena_sidorova");
+    ArrayPush(appearances, "zie_alonzo");
+
 
     if StrFindFirst(ToString(appearance), "boss") != -1 {
             npc.isBoss = true;
