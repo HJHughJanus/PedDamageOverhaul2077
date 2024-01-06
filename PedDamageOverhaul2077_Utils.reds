@@ -188,6 +188,8 @@ public func DetermineIfNPCIsBossOrPsycho(npc: ref<NPCPuppet>) -> Bool {
     ArrayPush(appearances, "tom_ymir_ayer");
     ArrayPush(appearances, "yelena_sidorova");
     ArrayPush(appearances, "zie_alonzo");
+    ArrayPush(appearances, "dante_m");
+    ArrayPush(appearances, "dante_n");
 
 
     if StrFindFirst(ToString(appearance), "boss") != -1 {
