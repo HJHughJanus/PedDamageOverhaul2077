@@ -165,53 +165,62 @@ public func AddNPCHealth(target: ref<NPCPuppet>, health: Float) -> Void {
 }
 
 public func DetermineIfNPCIsBossOrPsycho(npc: ref<NPCPuppet>) -> Bool {
-    let appearance: CName = npc.GetCurrentAppearanceName();
-    let appearances: array<String>;
-    ArrayPush(appearances, "gang__maelstrom_mb__q003__brick");
-    ArrayPush(appearances, "oda_oda");
-    ArrayPush(appearances, "woodman");
-    ArrayPush(appearances, "royce");
-    ArrayPush(appearances, "akira");
-    ArrayPush(appearances, "placide");
-    ArrayPush(appearances, "anton_kolev");
-    ArrayPush(appearances, "barry_alken");
-    ArrayPush(appearances, "bruce_ward");
-    ArrayPush(appearances, "denzel_cryer");
-    ArrayPush(appearances, "kaiser_herzog");
-    ArrayPush(appearances, "miguel_rodrigez");
-    ArrayPush(appearances, "mokomichi_yamada");
-    ArrayPush(appearances, "olga_elisabeth_longmead");
-    ArrayPush(appearances, "paul_craven");
-    ArrayPush(appearances, "rufus_mcbride");
-    ArrayPush(appearances, "shibobu_imai");
-    ArrayPush(appearances, "stanislaus_zbyszko");
-    ArrayPush(appearances, "tom_ymir_ayer");
-    ArrayPush(appearances, "yelena_sidorova");
-    ArrayPush(appearances, "zie_alonzo");
-    ArrayPush(appearances, "dante_m");
-    ArrayPush(appearances, "dante_n");
-
-
-    if StrFindFirst(ToString(appearance), "boss") != -1 {
-            npc.isBoss = true;
-            return true;
+    if npc.IsBoss() {
+        npc.isBoss = true;
+        return true;
     }
-    else {
-        if StrFindFirst(ToString(appearance), "psycho") != -1 {
+    else
+    {
+        let appearance: CName = npc.GetCurrentAppearanceName();
+        let appearances: array<String>;
+        ArrayPush(appearances, "gang__maelstrom_mb__q003__brick");
+        ArrayPush(appearances, "oda_oda");
+        ArrayPush(appearances, "woodman");
+        ArrayPush(appearances, "royce");
+        ArrayPush(appearances, "akira");
+        ArrayPush(appearances, "placide");
+        ArrayPush(appearances, "anton_kolev");
+        ArrayPush(appearances, "barry_alken");
+        ArrayPush(appearances, "bruce_ward");
+        ArrayPush(appearances, "denzel_cryer");
+        ArrayPush(appearances, "kaiser_herzog");
+        ArrayPush(appearances, "miguel_rodrigez");
+        ArrayPush(appearances, "mokomichi_yamada");
+        ArrayPush(appearances, "olga_elisabeth_longmead");
+        ArrayPush(appearances, "paul_craven");
+        ArrayPush(appearances, "rufus_mcbride");
+        ArrayPush(appearances, "shibobu_imai");
+        ArrayPush(appearances, "stanislaus_zbyszko");
+        ArrayPush(appearances, "tom_ymir_ayer");
+        ArrayPush(appearances, "yelena_sidorova");
+        ArrayPush(appearances, "zie_alonzo");
+        ArrayPush(appearances, "dante_m");
+        ArrayPush(appearances, "dante_n");
+        ArrayPush(appearances, "reed");
+        ArrayPush(appearances, "jeremiah_grayson");
+        ArrayPush(appearances, "kurt_bossfight");
+    
+        if StrFindFirst(ToString(appearance), "boss") != -1 {
             npc.isBoss = true;
             return true;
         }
         else {
-            let i = 0;
-            while i < ArraySize(appearances) {
-                if StrFindFirst(ToString(appearance), appearances[i]) != -1 {
-                    npc.isBoss = true;
-                    return true;
-                }
-                i += 1;
+            if StrFindFirst(ToString(appearance), "psycho") != -1 {
+                npc.isBoss = true;
+                return true;
             }
-            npc.isBoss = false;
-            return false;
+            else {
+                let i = 0;
+                while i < ArraySize(appearances) {
+                    if StrFindFirst(ToString(appearance), appearances[i]) != -1 {
+                        npc.isBoss = true;
+                        return true;
+                    }
+                    i += 1;
+                }
+                npc.isBoss = false;
+                return false;
+            }
         }
     }
 }

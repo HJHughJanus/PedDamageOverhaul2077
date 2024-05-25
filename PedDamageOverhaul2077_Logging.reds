@@ -5,12 +5,12 @@ import PDOUtils.*
 
 public func LogNPCData(npc: ref<NPCPuppet>, hitEvent: ref<gameHitEvent>, title: String, description: String) {
     let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
-    let attackData: ref<AttackData> = hitEvent.attackData;
-    let weaponFamily: gamedataItemType = WeaponObject.GetWeaponType(attackData.GetWeapon().GetItemID());
-    let weaponType: gamedataWeaponEvolution = RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID());
-    let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
-    let hitShapeType: EHitShapeType = DamageSystemHelper.GetHitShapeTypeFromData(DamageSystemHelper.GetHitShape(hitEvent));
-    let statsSystem: ref<StatsSystem> = GameInstance.GetStatsSystem(npc.GetGame());
+    //let attackData: ref<AttackData> = hitEvent.attackData;
+    //let weaponFamily: gamedataItemType = WeaponObject.GetWeaponType(attackData.GetWeapon().GetItemID());
+    //let weaponType: gamedataWeaponEvolution = RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID());
+    //let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
+    //let hitShapeType: EHitShapeType = DamageSystemHelper.GetHitShapeTypeFromData(DamageSystemHelper.GetHitShape(hitEvent));
+    //let statsSystem: ref<StatsSystem> = GameInstance.GetStatsSystem(npc.GetGame());
     let isTorsoCrippled: Bool = false;
     let isRightArmCrippled: Bool = false;
     let isLeftArmCrippled: Bool = false;
