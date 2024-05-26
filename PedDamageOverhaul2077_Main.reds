@@ -154,9 +154,16 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
       let hitUserData: ref<HitShapeUserDataBase>;
       let hitShapes: array<HitShapeData> = hitEvent.hitRepresentationResult.hitShapes;
       let hitShapeType: EHitShapeType = DamageSystemHelper.GetHitShapeTypeFromData(DamageSystemHelper.GetHitShape(hitEvent));
-
-        /* for information purposes:
-
+      let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
+      let skippyEquipped: Bool = false;
+      let skippyWeaponRec1 = TweakDBInterface.GetItemRecord(t"Items.mq007_skippy") as WeaponItem_Record;
+      let skippyWeaponRec2 = TweakDBInterface.GetItemRecord(t"Items.Preset_Yukimura_Skippy") as WeaponItem_Record;
+      let currPlayerWeaponID = ScriptedPuppet.GetActiveWeapon(player).GetItemID();
+      let currPlayerWeaponRec = TweakDBInterface.GetItemRecord(ItemID.GetTDBID(currPlayerWeaponID)) as WeaponItem_Record;
+      let currPlayerWeaponIsBlade: Bool = Equals(RPGManager.GetWeaponEvolution(currPlayerWeaponID), gamedataWeaponEvolution.Blade);
+      
+      /* for information purposes:
+      
                 enum EHitShapeType
                 {
                   None = -1,
@@ -165,119 +172,125 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
                   Cyberware = 2,
                   Armor = 3
                 }
-        */
+      */
 
-      if !hitEvent.attackData.GetInstigator().IsPlayer() {
-        return;
+      if ((skippyWeaponRec1 == currPlayerWeaponRec) || (skippyWeaponRec2 == currPlayerWeaponRec)) {
+        skippyEquipped = true;
       }
 
-      if AttackData.IsAreaOfEffect(hitEvent.attackData.GetAttackType()) {
-        return;
-      }
+      //Check for Skippy - if everything checks out, continue
+      if ((!(skippyEquipped && !PDO.EnablePDOForSkippy) && (!(currPlayerWeaponIsBlade && !PDO.EnablePDOForBlades)))) {
+        if !hitEvent.attackData.GetInstigator().IsPlayer() {
+          return;
+        }
 
-      if ArraySize(hitShapes) > 0 {
-        hitUserData = DamageSystemHelper.GetHitShapeUserDataBase(hitShapes[0]);
-      }
+        if AttackData.IsAreaOfEffect(hitEvent.attackData.GetAttackType()) {
+          return;
+        }
 
-      if !IsDefined(hitUserData) {
-        return;
-      }
+        if ArraySize(hitShapes) > 0 {
+          hitUserData = DamageSystemHelper.GetHitShapeUserDataBase(hitShapes[0]);
+        }
 
-      /*_______________________________________________________
+        if !IsDefined(hitUserData) {
+          return;
+        }
 
-            CUSTOM CODE
-      ________________________________________________________*/
+        /*_______________________________________________________
 
-      if IsDefined(npc) && !npc.IsDead() {
-        if ((PDO.EnablePDOOnlyForHumans && Equals(npc.GetNPCType(), gamedataNPCType.Human)) || (!PDO.EnablePDOOnlyForHumans)) && !ShouldNPCBeExcluded(npc) {        
+              CUSTOM CODE
+        ________________________________________________________*/
 
-          let hitShapeTypeString: String = ToString(hitShapeType); //gives information about actual flesh being hit (or metal, cyberware, armor)
-          let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
+        if IsDefined(npc) && !npc.IsDead() {
+          if ((PDO.EnablePDOOnlyForHumans && Equals(npc.GetNPCType(), gamedataNPCType.Human)) || (!PDO.EnablePDOOnlyForHumans)) && !ShouldNPCBeExcluded(npc) {        
 
-          /*_______________________________________________________
+            let hitShapeTypeString: String = ToString(hitShapeType); //gives information about actual flesh being hit (or metal, cyberware, armor)
 
-              AUDIBLE HIT REACTIONS
-          ________________________________________________________*/
+            /*_______________________________________________________
 
-          if Equals(npc.lastpainaudio, n"") {
-            npc.lastpainaudio = n"placeholder";
-          }
-          if Equals(npc.lastfireaudio, n"") {
-            npc.lastfireaudio = n"placeholder";
-          }
-          if Equals(npc.lastmoanaudio, n"") {
-          npc.lastmoanaudio = n"placeholder";
-          }
+                AUDIBLE HIT REACTIONS
+            ________________________________________________________*/
 
-          //delaying pain moaning when audible reaction to being is played (so they dont overlap)
-          if npc.lasttimemoaned > Cast<Uint32>(0) {
-            npc.lasttimemoaned = npc.timeincapacitated;
-          }
-          if PDO.PlayPainSounds {
-            PlaySound(npc, GetPainAudio(npc.lastpainaudio, npc));
-          }    
-          
-          /*_______________________________________________________
+            if Equals(npc.lastpainaudio, n"") {
+              npc.lastpainaudio = n"placeholder";
+            } 
+            if Equals(npc.lastfireaudio, n"") {
+              npc.lastfireaudio = n"placeholder";
+            }
+            if Equals(npc.lastmoanaudio, n"") {
+            npc.lastmoanaudio = n"placeholder";
+            }
 
-              ACTIVATING MOD LOOP FOR NPC
-          ________________________________________________________*/
+            //delaying pain moaning when audible reaction to being is played (so they dont overlap)
+            if npc.lasttimemoaned > Cast<Uint32>(0) {
+              npc.lasttimemoaned = npc.timeincapacitated;
+            }
+            if PDO.PlayPainSounds {
+              PlaySound(npc, GetPainAudio(npc.lastpainaudio, npc));
+            }    
 
-          if !npc.hasBeenAffectedByMod {
-            if !npc.WasJustKilledOrDefeated() {
+            /*_______________________________________________________
 
-              let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
-              if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.InvulnerableAfterDefeated") {
-                npc.wasInvulnerableAfterDefeat = true;
-              }
-              else {
-                if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Invulnerable") {
-                  npc.wasInvulnerable = true;
+                ACTIVATING MOD LOOP FOR NPC
+            ________________________________________________________*/
+
+            if !npc.hasBeenAffectedByMod {
+              if !npc.WasJustKilledOrDefeated() {
+
+                let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
+                if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.InvulnerableAfterDefeated") {
+                  npc.wasInvulnerableAfterDefeat = true;
                 }
-              }          
+                else {
+                  if statusEffectSystem.HasStatusEffect(npc.GetEntityID(), t"BaseStatusEffect.Invulnerable") {
+                    npc.wasInvulnerable = true;
+                  }
+                }          
 
+                DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString, hitEvent);
+                ApplyDamageEffects(npc);
+                if (GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold())) && PDO.EnableGore {
+                  DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 2);
+                }
+
+                let myFunctionCallback: ref<DelayedMainLoopCallback> = new DelayedMainLoopCallback();
+                myFunctionCallback.entity = npc;
+                GameInstance.GetDelaySystem(npc.GetGame()).DelayCallback(myFunctionCallback, 0);
+              }
+            }
+            else {
               DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString, hitEvent);
               ApplyDamageEffects(npc);
               if (GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold())) && PDO.EnableGore {
                 DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 2);
               }
+            }
 
-              let myFunctionCallback: ref<DelayedMainLoopCallback> = new DelayedMainLoopCallback();
-              myFunctionCallback.entity = npc;
-              GameInstance.GetDelaySystem(npc.GetGame()).DelayCallback(myFunctionCallback, 0);
-            }
-          }
-          else {
-            DoDamageEffectCalculations(npc, hitUserData, hitShapeTypeString, hitEvent);
-            ApplyDamageEffects(npc);
-            if (GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold())) && PDO.EnableGore {
-              DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 2);
-            }
-          }
-
-          if npc.headhitcounter >= PDO.GetDSHeadshotKillThreshold() && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
-            if !DetermineIfNPCIsBossOrPsycho(npc) {
-              KillNPCCleanlyModal(npc, 2);
-              DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 1);
-              player.GetStimBroadcasterComponent().TriggerSingleBroadcast(player, gamedataStimType.Terror, 1.00);
-            }
-          }
-          else {
-            if npc.torsohitcounter >= PDO.GetDSTorsoshotKillThreshold() && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
+            if npc.headhitcounter >= PDO.GetDSHeadshotKillThreshold() && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
               if !DetermineIfNPCIsBossOrPsycho(npc) {
                 KillNPCCleanlyModal(npc, 2);
                 DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 1);
                 player.GetStimBroadcasterComponent().TriggerSingleBroadcast(player, gamedataStimType.Terror, 1.00);
               }
             }
+            else {
+              if npc.torsohitcounter >= PDO.GetDSTorsoshotKillThreshold() && GetNPCHealthInPercent(npc) < Cast<Float>(PDO.GetDyingStateThreshold()) {
+                if !DetermineIfNPCIsBossOrPsycho(npc) {
+                  KillNPCCleanlyModal(npc, 2);
+                  DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 1);
+                  player.GetStimBroadcasterComponent().TriggerSingleBroadcast(player, gamedataStimType.Terror, 1.00);
+                }
+              }
+            }
+            if PDO.Logging {
+              LogNPCData(npc, hitEvent, "Ped Damage Overhaul 2077 - Pre-Shot-Analytics", "Logs the state of the NPC at the moment the damage hits them (status effects, etc. not applied at this time).");
+            }  
           }
-          if PDO.Logging {
-            LogNPCData(npc, hitEvent, "Ped Damage Overhaul 2077 - Pre-Shot-Analytics", "Logs the state of the NPC at the moment the damage hits them (status effects, etc. not applied at this time).");
-          }  
         }
-      }
-      else if IsDefined(npc) && npc.IsDead() && PDO.EnableGore {
-        let hitShapeTypeString: String = ToString(hitShapeType); //gives information about actual flesh being hit (or metal, cyberware, armor)
-        DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 2);
+        else if IsDefined(npc) && npc.IsDead() && PDO.EnableGore {
+          let hitShapeTypeString: String = ToString(hitShapeType); //gives information about actual flesh being hit (or metal, cyberware, armor)
+          DismemberBodyPart(npc, hitUserData, hitShapeTypeString, hitEvent, 2);
+        }
       }
     }
   }

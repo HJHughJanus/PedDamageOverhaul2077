@@ -5,12 +5,12 @@ import PDOUtils.*
 
 public func LogNPCData(npc: ref<NPCPuppet>, hitEvent: ref<gameHitEvent>, title: String, description: String) {
     let statusEffectSystem: ref<StatusEffectSystem> = GameInstance.GetStatusEffectSystem(GetGameInstance());
-    //let attackData: ref<AttackData> = hitEvent.attackData;
-    //let weaponFamily: gamedataItemType = WeaponObject.GetWeaponType(attackData.GetWeapon().GetItemID());
-    //let weaponType: gamedataWeaponEvolution = RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID());
-    //let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
-    //let hitShapeType: EHitShapeType = DamageSystemHelper.GetHitShapeTypeFromData(DamageSystemHelper.GetHitShape(hitEvent));
-    //let statsSystem: ref<StatsSystem> = GameInstance.GetStatsSystem(npc.GetGame());
+    let attackData: ref<AttackData> = hitEvent.attackData;
+    let weaponFamily: gamedataItemType = WeaponObject.GetWeaponType(attackData.GetWeapon().GetItemID());
+    let weaponType: gamedataWeaponEvolution = RPGManager.GetWeaponEvolution(attackData.GetWeapon().GetItemID());
+    let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
+    let hitShapeType: EHitShapeType = DamageSystemHelper.GetHitShapeTypeFromData(DamageSystemHelper.GetHitShape(hitEvent));
+    let statsSystem: ref<StatsSystem> = GameInstance.GetStatsSystem(npc.GetGame());
     let isTorsoCrippled: Bool = false;
     let isRightArmCrippled: Bool = false;
     let isLeftArmCrippled: Bool = false;
@@ -33,7 +33,7 @@ public func LogNPCData(npc: ref<NPCPuppet>, hitEvent: ref<gameHitEvent>, title: 
       isTorsoCrippled = true;
     }
 
-    /*
+    
     LogChannel(n"DEBUG", "PDO- [" + title + "]");
     LogChannel(n"DEBUG", "PDO- Log Description: " + description);
     LogChannel(n"DEBUG", "PDO-    PDO Loop Counter: " + ToString(npc.pdoLoopCounter));
@@ -73,7 +73,7 @@ public func LogNPCData(npc: ref<NPCPuppet>, hitEvent: ref<gameHitEvent>, title: 
     LogChannel(n"DEBUG", "PDO-     - Left Leg shot count: " + ToString(npc.leftleghitcounter));
     LogChannel(n"DEBUG", "PDO-     - - Leg Crippling Threshold: " + ToString(PDO.GetLegDamagedThreshold()));
     LogChannel(n"DEBUG", "PDO-     - - Is Right Leg Crippled: " + ToString(isRightLegCrippled));
-    LogChannel(n"DEBUG", "PDO-     - - Is Left Leg Crippled: " + ToString(isLeftLegCrippled));*/
+    LogChannel(n"DEBUG", "PDO-     - - Is Left Leg Crippled: " + ToString(isLeftLegCrippled));
 }
 
 public func LogStatusEffects(playerPuppet: ref<gamePuppetBase>) -> Void {

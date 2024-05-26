@@ -22,6 +22,16 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let EnablePDOOnlyForHumans: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Enable for Blade Weapons")
+  @runtimeProperty("ModSettings.description", "Makes PDO also work with Blade Weapons equipped. This option is for people who have come across incompatibilities with other mods leading to Blade Finishing Moves not working. With this option you can just disable PDO for Blade Weapons and enjoy its functionality for everything else.")
+  let EnablePDOForBlades: Bool = true;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Enable for Skippy")
+  @runtimeProperty("ModSettings.description", "Makes PDO also work with Skippy (the talking weapon) equipped. This may lead to complications with non-lethal mission objectives (during the Skippy quest line), though.")
+  let EnablePDOForSkippy: Bool = false;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Enable for Bosses and Psychos")
   @runtimeProperty("ModSettings.description", "Makes PDO work for Bosses and Cyberpsychos (to a degree - only crippling and Dying State, no kills due to Shot Points, since it would make things too easy).")
   let EnablePDOForBosses: Bool = false;
