@@ -158,6 +158,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
       let skippyEquipped: Bool = false;
       let skippyWeaponRec1 = TweakDBInterface.GetItemRecord(t"Items.mq007_skippy") as WeaponItem_Record;
       let skippyWeaponRec2 = TweakDBInterface.GetItemRecord(t"Items.Preset_Yukimura_Skippy") as WeaponItem_Record;
+      let NonLethalActive: Bool = false;
       let currPlayerWeaponID = ScriptedPuppet.GetActiveWeapon(player).GetItemID();
       let currPlayerWeaponRec = TweakDBInterface.GetItemRecord(ItemID.GetTDBID(currPlayerWeaponID)) as WeaponItem_Record;
       let currPlayerWeaponIsBlade: Bool = Equals(RPGManager.GetWeaponEvolution(currPlayerWeaponID), gamedataWeaponEvolution.Blade);
@@ -177,9 +178,14 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
       if ((skippyWeaponRec1 == currPlayerWeaponRec) || (skippyWeaponRec2 == currPlayerWeaponRec)) {
         skippyEquipped = true;
       }
+      else {
+        if (hitEvent.attackData.HasFlag(hitFlag.Nonlethal) && !PDO.EnablePDOForNonLethals) {
+          NonLethalActive = true;
+        }
+      }
 
       //Check for Skippy - if everything checks out, continue
-      if ((!(skippyEquipped && !PDO.EnablePDOForSkippy) && (!(currPlayerWeaponIsBlade && !PDO.EnablePDOForBlades)))) {
+      if ((!(skippyEquipped && !PDO.EnablePDOForSkippy) && (!(currPlayerWeaponIsBlade && !PDO.EnablePDOForBlades))) && !NonLethalActive) {
         if !hitEvent.attackData.GetInstigator().IsPlayer() {
           return;
         }

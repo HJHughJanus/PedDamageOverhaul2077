@@ -32,6 +32,11 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let EnablePDOForSkippy: Bool = false;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Enable for Non-Lethals")
+  @runtimeProperty("ModSettings.description", "Makes PDO also work with Non-Lethal weapons (= makes non-lethal weapons lethal). This setting does not include Skippy, the talking gun (Skippy has its own setting).")
+  let EnablePDOForNonLethals: Bool = false;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Enable for Bosses and Psychos")
   @runtimeProperty("ModSettings.description", "Makes PDO work for Bosses and Cyberpsychos (to a degree - only crippling and Dying State, no kills due to Shot Points, since it would make things too easy).")
   let EnablePDOForBosses: Bool = false;
