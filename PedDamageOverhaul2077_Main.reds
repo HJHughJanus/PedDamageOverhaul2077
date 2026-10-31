@@ -84,6 +84,10 @@ let screamcount: Int32;
 @addField(NPCPuppet)
 let pdoLoopCounter: Int32;
 @addField(NPCPuppet)
+let impactDampeningTicks: Int32;
+@addField(NPCPuppet)
+let impactDampeningDirection: Vector4;
+@addField(NPCPuppet)
 let gender: Int32;
 //10 = male
 //20 = female
@@ -123,6 +127,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
   let PDO: ref<PedDamageOverhaul2077> = PedDamageOverhaul2077.GetInstance();
   let NPCIsBossAndPDOEnabled: Bool = true;
   let npc: ref<NPCPuppet> = hitEvent.target as NPCPuppet;
+  let isCivilian: Bool = false;
   
   if IsDefined(npc) && !npc.IsDead() {
     if DetermineIfNPCIsBossOrPsycho(npc) && !PDO.EnablePDOForBosses {
@@ -132,10 +137,68 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
 
   /*_______________________________________________________
               
+        MAKE CIVILIANS INVINCIBLE FOR CURRENT DAMAGE (so they do not get one-shotted)
+  ________________________________________________________*/
+
+  if PDO.GetEnabled() && IsDefined(npc) && !npc.IsDead() && !npc.WasJustKilledOrDefeated() && PDO.EnablePDOForCivilians {
+    let player: wref<PlayerPuppet> = GetPlayer(npc.GetGame());
+    let weaponID = ScriptedPuppet.GetActiveWeapon(player).GetItemID();
+    let weaponRec = TweakDBInterface.GetItemRecord(ItemID.GetTDBID(weaponID)) as WeaponItem_Record;
+    let isSkippy: Bool = (TweakDBInterface.GetItemRecord(t"Items.mq007_skippy") as WeaponItem_Record) == weaponRec || (TweakDBInterface.GetItemRecord(t"Items.Preset_Yukimura_Skippy") as WeaponItem_Record) == weaponRec;
+    let isBlade: Bool = Equals(RPGManager.GetWeaponEvolution(weaponID), gamedataWeaponEvolution.Blade);
+    let isNonLethal: Bool = hitEvent.attackData.HasFlag(hitFlag.Nonlethal);
+
+    if hitEvent.attackData.GetInstigator().IsPlayer() && !AttackData.IsAreaOfEffect(hitEvent.attackData.GetAttackType()) && !(isSkippy && !PDO.EnablePDOForSkippy) && !(isBlade && !PDO.EnablePDOForBlades) && !(isNonLethal && !PDO.EnablePDOForNonLethals) {
+      let appearanceName: String = ToString(npc.GetCurrentAppearanceName());
+      let isEnemyFaction: Bool = IsEnemyTokenInAppearanceName(appearanceName);
+
+      if !isEnemyFaction {
+        isCivilian = true;
+        hitEvent.attackData.AddFlag(hitFlag.DealNoDamage, n"PDOCivilianInvincibility");
+      }
+    }
+  }
+
+  /*_______________________________________________________
+              
         CALL VANILLA FUNCTION, SO NOTHING IS OVERWRITTEN
   ________________________________________________________*/
 
   wrappedMethod(hitEvent);
+
+  /*_______________________________________________________
+              
+        IMPACT DAMPENING
+  ________________________________________________________*/
+
+  if PDO.GetEnabled() && IsDefined(npc) && !hitEvent.isProjection && hitEvent.attackData.GetInstigator().IsPlayer() && PDO.EnableImpactDampening {
+    let shouldDampenImpacts: Bool = npc.IsDead() || npc.toBeIncapacitated || npc.WasPDODismembered;
+    
+    if shouldDampenImpacts && npc.impactDampeningTicks <= 0 {
+      let dampeningCallback: ref<DelayedImpactDampeningCallback> = new DelayedImpactDampeningCallback();
+
+      npc.impactDampeningDirection = Vector4.Normalize(npc.GetWorldPosition() - hitEvent.attackData.GetInstigator().GetWorldPosition());
+      npc.impactDampeningTicks = 8;
+      
+      dampeningCallback.entity = npc;
+      GameInstance.GetDelaySystem(npc.GetGame()).DelayCallback(dampeningCallback, 0.0, false);
+    }
+  }
+  
+  /*_______________________________________________________
+              
+        MAKE CIVILIANS ENTER DYING STATE
+  ________________________________________________________*/
+
+  if PDO.GetEnabled() && isCivilian && IsDefined(npc) && !npc.IsDead() && !npc.toBeIncapacitated && PDO.EnablePDOForCivilians {
+    let targetPerc: Float = Cast<Float>(PDO.GetDyingStateThreshold()) - 1.0;
+    
+    if targetPerc < 1.0 {
+      targetPerc = 1.0;
+    }
+    
+    SetNPCHealthInPercent(npc, targetPerc);
+  }
   
   if PDO.GetEnabled() && NPCIsBossAndPDOEnabled {
 
@@ -144,8 +207,7 @@ private func ProcessLocalizedDamage(hitEvent: ref<gameHitEvent>) {
           IF HIT IS PHYSICAL, DO STUFF
     ________________________________________________________*/
 
-    if !hitEvent.isProjection
-    {
+    if !hitEvent.isProjection {
       /*_______________________________________________________
 
             VARIABLES AND ERROR CHECKING FROM VANILLA FUNCTION
@@ -327,6 +389,34 @@ public class DelayedResetBloodPuddlePropertiesCallback extends DelayCallback {
 	}
 }
 
+public class DelayedImpactDampeningCallback extends DelayCallback {
+  public let entity: ref<NPCPuppet>;
+
+  public func Call() -> Void {
+    ImpactDampeningTick(this.entity);
+  }
+}
+
+public func ImpactDampeningTick(npc: ref<NPCPuppet>) {
+  if !IsDefined(npc) || npc.impactDampeningTicks <= 0 {
+    return;
+  }
+  
+  npc.impactDampeningTicks -= 1;
+
+  let strength: Float = 0.55;
+  let down: Float = 1.10;
+  let impulse: Vector4 = new Vector4(-npc.impactDampeningDirection.X * strength, -npc.impactDampeningDirection.Y * strength, -down, 0.0);
+
+  GameInstance.GetDelaySystem(npc.GetGame()).DelayEvent(npc, CreateRagdollApplyImpulseEvent(npc.GetWorldPosition(), impulse, 0.05), 0.0, false);
+
+  if npc.impactDampeningTicks > 0 {
+    let callback: ref<DelayedImpactDampeningCallback> = new DelayedImpactDampeningCallback();
+
+    callback.entity = npc;
+    GameInstance.GetDelaySystem(npc.GetGame()).DelayCallback(callback, 0.03, false);
+  }
+}
 
 /*__________________________________________________________________________________________________________________________________
 

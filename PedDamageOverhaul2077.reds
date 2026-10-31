@@ -17,9 +17,19 @@ public class PedDamageOverhaul2077 extends IScriptable {
   let Enabled: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Enable Impact Dampening")
+  @runtimeProperty("ModSettings.description", "Makes PDO try to dampen weapon impacts on NPCs, so the ragdolls and physical reactions do not look so goofy (not needed if any other mod in your mod list already takes care of that).")
+  let EnableImpactDampening: Bool = true;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Enable Only For Human NPCs")
   @runtimeProperty("ModSettings.description", "Makes PDO only work for human NPCs (if this is disabled, some missions may be bugged, since drones or other enemies can be defeated faster than intended).")
   let EnablePDOOnlyForHumans: Bool = true;
+
+  @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
+  @runtimeProperty("ModSettings.displayName", "Enable for civilian NPCs")
+  @runtimeProperty("ModSettings.description", "Makes PDO work for civilian NPCs (PDO actively tries to keep civilians alive when they are shot, so they can transition into the Dying State).")
+  let EnablePDOForCivilians: Bool = true;
 
   @runtimeProperty("ModSettings.mod", "Ped Damage Overhaul 2077")
   @runtimeProperty("ModSettings.displayName", "Enable for Blade Weapons")

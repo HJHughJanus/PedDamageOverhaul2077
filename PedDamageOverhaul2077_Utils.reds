@@ -48,6 +48,53 @@ public func ShouldNPCBeExcluded(npc: ref<NPCPuppet>) -> Bool {
     return NPCFound;
 }
 
+public func IsEnemyTokenInAppearanceName(appearanceName: String) -> Bool {
+    let enemyTokens: array<String>;
+    let enemyTokenFound: Bool = false;
+
+    ArrayPush(enemyTokens, "gang");
+    ArrayPush(enemyTokens, "voodoo");
+    ArrayPush(enemyTokens, "maelstrom");
+    ArrayPush(enemyTokens, "scav");
+    ArrayPush(enemyTokens, "mox");
+    ArrayPush(enemyTokens, "tyger");
+    ArrayPush(enemyTokens, "sixth");
+    ArrayPush(enemyTokens, "6th");
+    ArrayPush(enemyTokens, "animal");
+    ArrayPush(enemyTokens, "wraith");
+    ArrayPush(enemyTokens, "raffen");
+    ArrayPush(enemyTokens, "valentinos");
+    ArrayPush(enemyTokens, "barghest");
+    ArrayPush(enemyTokens, "ncpd");
+    ArrayPush(enemyTokens, "cop");
+    ArrayPush(enemyTokens, "maxtac");
+    ArrayPush(enemyTokens, "trauma");
+    ArrayPush(enemyTokens, "netwatch");
+    ArrayPush(enemyTokens, "militech");
+    ArrayPush(enemyTokens, "arasaka");
+    ArrayPush(enemyTokens, "kangtao");
+    ArrayPush(enemyTokens, "zetatech");
+    ArrayPush(enemyTokens, "nightcorp");
+    ArrayPush(enemyTokens, "sovoil");
+    ArrayPush(enemyTokens, "security");
+    ArrayPush(enemyTokens, "merc");
+    ArrayPush(enemyTokens, "solo");
+    ArrayPush(enemyTokens, "boss");
+    ArrayPush(enemyTokens, "psycho");
+
+    let i = 0;
+
+    while i < ArraySize(enemyTokens) && !enemyTokenFound {
+        if StrFindFirst(appearanceName, enemyTokens[i]) != -1 {
+            enemyTokenFound = true;
+            return enemyTokenFound;
+        }
+        i += 1;
+    }
+
+    return false;
+}
+
 
 /*
 public func MakeNPCFlee(npc: ref<NPCPuppet>) {
